@@ -11,7 +11,7 @@
 [![Donate][img-paypal]][donate-paypal]
 
 
-## **Simple start in just 3 steps!**
+## **Simple start in just 3 steps! BLAH**
 
 ### **1. Install this plugin from [Package Control](https://packagecontrol.io/)** 
 
