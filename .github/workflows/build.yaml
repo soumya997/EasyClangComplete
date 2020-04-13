@@ -27,6 +27,7 @@ jobs:
           PATH="$HOME/.local/bin:$PATH"
           sh github.sh bootstrap
           sh github.sh install_package_control
+          ls
           sh github.sh run_tests --coverage
           coverage xml -o cobertura.xml
           mkdocs build --verbose --clean --strict
