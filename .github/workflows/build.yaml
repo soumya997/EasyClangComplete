@@ -1,74 +1,60 @@
 name: build
 
-on: [push]
+on: [pull_request]
+
+# if need master branch of UnitTesting
+#  env:
+#     UNITTESTING_TAG: master
 
 jobs:
-  test-on-linux:
+  linux:
     runs-on: ubuntu-latest
     container: sublimetext/unittesting
     steps:
       - uses: actions/checkout@v1
       - run: sh -e /etc/init.d/xvfb start
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
-      - name: Install prerequisites
-        run: |
-          apt-get update
-          apt-get install -y python3-pip clang cmake
-          pip3 install --upgrade pycodestyle pep257 coverage==4.5.4 mkdocs mkdocs-material
-      - name: Install bazelisk
-        run: |
-          export BAZEL_FOLDER="$HOME/.local/bin"
-          curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64"
-          mkdir -p "$BAZEL_FOLDER"
-          mv bazelisk-linux-amd64 "$BAZEL_FOLDER/bazel"
-          chmod +x "$BAZEL_FOLDER/bazel"
-      - name: Run tests
-        run: |
+      - run: |
           PATH="$HOME/.local/bin:$PATH"
           sh github.sh bootstrap
           sh github.sh install_package_control
           sh github.sh run_tests --coverage
-          coverage xml -o cobertura.xml
-          mkdocs build --verbose --clean --strict
-      - name: Run codacy-coverage-reporter
-        uses: mrfyda/codacy-coverage-reporter-action@master
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-
-      - name: Deploy
-        if: github.event_name == 'push' && github.event.ref == 'master'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-  # macos:
-  #   runs-on: macOS-latest
-  #   steps:
-  #     - uses: actions/checkout@v1
-  #     - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
-  #     - run: |
-  #         export PATH="$HOME/.local/bin:$PATH"
-  #         sh github.sh bootstrap
-  #         sh github.sh install_package_control
-  #         sh github.sh run_tests --coverage
-  #         # sh github.sh run_syntax_tests --coverage
-  #     - run: |
-  #         pip3 install coverage==4.5.4 codecov==2.0.15
-  #         codecov
-  #       env:
-  #         CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
-  # windows:
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/checkout@v1
-  #     - run: (new-object net.webclient).DownloadFile("https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.ps1","github.ps1")
-  #     - run: |
-  #         ./github.ps1 "bootstrap" -verbose
-  #         ./github.ps1 "install_package_control" -verbose
-  #         ./github.ps1 "run_tests" -coverage -verbose
-  #         # ./github.ps1 "run_syntax_tests" -coverage -verbose
-  #     - run: |
-  #         pip3 install coverage==4.5.4 codecov==2.0.15
-  #         codecov
-  #       env:
-  #         CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+          # sh github.sh run_syntax_tests --coverage
+      - run: |
+          apt-get update
+          apt-get install python3-pip -y
+          pip3 install coverage==4.5.4 codecov==2.0.15
+          codecov
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
+      - run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          sh github.sh bootstrap
+          sh github.sh install_package_control
+          sh github.sh run_tests --coverage
+          # sh github.sh run_syntax_tests --coverage
+      - run: |
+          pip3 install coverage==4.5.4 codecov==2.0.15
+          codecov
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: (new-object net.webclient).DownloadFile("https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.ps1","github.ps1")
+      - run: |
+          ./github.ps1 "bootstrap" -verbose
+          ./github.ps1 "install_package_control" -verbose
+          ./github.ps1 "run_tests" -coverage -verbose
+          # ./github.ps1 "run_syntax_tests" -coverage -verbose
+      - run: |
+          pip3 install coverage==4.5.4 codecov==2.0.15
+          codecov
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
