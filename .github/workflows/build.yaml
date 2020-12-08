@@ -7,20 +7,19 @@ on: [pull_request]
 #     UNITTESTING_TAG: master
 
 jobs:
-  install_prerequisites:
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-        pip3 install --upgrade pip pycodestyle pep257;
-        pip3 install --upgrade coverage==4.5.4 codecov==2.0.15;
-        pip3 install --upgrade mkdocs mkdocs-material;
-
   linux:
     needs: install_prerequisites
     runs-on: ubuntu-latest
     container: sublimetext/unittesting
     steps:
       - uses: actions/checkout@v1
+      - name: Install prerequisites
+        run: |
+        apt-get update
+        apt-get install python3-pip -y
+        pip3 install --upgrade pip pycodestyle pep257;
+        pip3 install --upgrade coverage==4.5.4 codecov==2.0.15;
+        pip3 install --upgrade mkdocs mkdocs-material;
       - run: sh -e /etc/init.d/xvfb start
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - run: |
@@ -41,6 +40,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Install prerequisites
+        run: |
+        pip3 install --upgrade pip pycodestyle pep257;
+        pip3 install --upgrade coverage==4.5.4 codecov==2.0.15;
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - run: |
           export PATH="$HOME/.local/bin:$PATH"
