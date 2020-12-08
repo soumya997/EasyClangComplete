@@ -8,7 +8,6 @@ on: [pull_request]
 
 jobs:
   linux:
-    needs: install_prerequisites
     runs-on: ubuntu-latest
     container: sublimetext/unittesting
     steps:
@@ -34,7 +33,6 @@ jobs:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
   macos:
-    needs: install_prerequisites
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
@@ -54,7 +52,6 @@ jobs:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
   windows:
-    needs: install_prerequisites
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v1
