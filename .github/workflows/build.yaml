@@ -21,7 +21,6 @@ jobs:
           pip3 install --upgrade mkdocs mkdocs-material
           curl -L -o bazelisk "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64";
           chmod +x bazelisk && sudo mv bazelisk /usr/local/bin/bazel;
-          sudo ln -s /usr/bin/clang-9 /usr/bin/clang
       - run: sh -e /etc/init.d/xvfb start
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - name: Run tests
