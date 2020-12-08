@@ -7,7 +7,16 @@ on: [pull_request]
 #     UNITTESTING_TAG: master
 
 jobs:
+  install_prerequisites:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+        pip3 install --upgrade pip pycodestyle pep257;
+        pip3 install --upgrade coverage==4.5.4 codecov==2.0.15;
+        pip3 install --upgrade mkdocs mkdocs-material;
+
   linux:
+    needs: install_prerequisites
     runs-on: ubuntu-latest
     container: sublimetext/unittesting
     steps:
@@ -15,19 +24,20 @@ jobs:
       - run: sh -e /etc/init.d/xvfb start
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - run: |
+          which clang
           PATH="$HOME/.local/bin:$PATH"
           sh github.sh bootstrap
           sh github.sh install_package_control
           sh github.sh run_tests --coverage
-          # sh github.sh run_syntax_tests --coverage
       - run: |
           apt-get update
           apt-get install python3-pip -y
-          pip3 install coverage==4.5.4 codecov==2.0.15
           codecov
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+
   macos:
+    needs: install_prerequisites
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
@@ -37,13 +47,13 @@ jobs:
           sh github.sh bootstrap
           sh github.sh install_package_control
           sh github.sh run_tests --coverage
-          # sh github.sh run_syntax_tests --coverage
       - run: |
-          pip3 install coverage==4.5.4 codecov==2.0.15
           codecov
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+
   windows:
+    needs: install_prerequisites
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v1
@@ -52,9 +62,7 @@ jobs:
           ./github.ps1 "bootstrap" -verbose
           ./github.ps1 "install_package_control" -verbose
           ./github.ps1 "run_tests" -coverage -verbose
-          # ./github.ps1 "run_syntax_tests" -coverage -verbose
       - run: |
-          pip3 install coverage==4.5.4 codecov==2.0.15
           codecov
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
