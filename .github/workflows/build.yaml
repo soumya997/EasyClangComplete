@@ -15,7 +15,7 @@ jobs:
       - name: Install prerequisites
         run: |
           apt-get update
-          apt-get install python3-pip -y
+          apt-get install clang python3-pip -y
           pip3 install --upgrade pip pycodestyle pep257
           pip3 install --upgrade coverage==4.5.4 codecov==2.0.15
           pip3 install --upgrade mkdocs mkdocs-material
