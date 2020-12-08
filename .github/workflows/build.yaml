@@ -17,9 +17,9 @@ jobs:
         run: |
         apt-get update
         apt-get install python3-pip -y
-        pip3 install --upgrade pip pycodestyle pep257;
-        pip3 install --upgrade coverage==4.5.4 codecov==2.0.15;
-        pip3 install --upgrade mkdocs mkdocs-material;
+        pip3 install --upgrade pip pycodestyle pep257
+        pip3 install --upgrade coverage==4.5.4 codecov==2.0.15
+        pip3 install --upgrade mkdocs mkdocs-material
       - run: sh -e /etc/init.d/xvfb start
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - run: |
@@ -29,8 +29,6 @@ jobs:
           sh github.sh install_package_control
           sh github.sh run_tests --coverage
       - run: |
-          apt-get update
-          apt-get install python3-pip -y
           codecov
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
@@ -42,8 +40,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Install prerequisites
         run: |
-        pip3 install --upgrade pip pycodestyle pep257;
-        pip3 install --upgrade coverage==4.5.4 codecov==2.0.15;
+        pip3 install --upgrade pip pycodestyle pep257
+        pip3 install --upgrade coverage==4.5.4 codecov==2.0.15
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - run: |
           export PATH="$HOME/.local/bin:$PATH"
