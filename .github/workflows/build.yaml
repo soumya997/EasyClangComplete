@@ -16,7 +16,13 @@ jobs:
           pip3 install --upgrade pip pycodestyle pep257
           pip3 install --upgrade coverage==4.5.4 codecov
           pip3 install --upgrade mkdocs mkdocs-material
-      - run: sh -e /etc/init.d/xvfb start
+      - run: |
+        XVFB=/usr/bin/Xvfb
+        XVFBARGS="$DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset"
+        PIDFILE=/var/run/xvfb.pid
+        echo -n "Starting virtual X frame buffer: Xvfb"
+        start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile --background --exec $XVFB -- $XVFBARGS
+        echo "."
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - name: Run tests
         run: |
