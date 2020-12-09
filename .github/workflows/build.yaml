@@ -17,7 +17,7 @@ jobs:
           apt-get update
           apt-get install cmake clang python3-pip -y
           pip3 install --upgrade pip pycodestyle pep257
-          pip3 install --upgrade coverage==4.5.4 codecov==2.0.15
+          pip3 install --upgrade coverage==4.5.4 codecov
           pip3 install --upgrade mkdocs mkdocs-material
           curl -L -o bazelisk "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64";
           chmod +x bazelisk && sudo mv bazelisk /usr/local/bin/bazel;
@@ -42,7 +42,7 @@ jobs:
       - name: Install prerequisites
         run: |
           pip3 install --upgrade pip pycodestyle pep257
-          pip3 install --upgrade coverage==4.5.4 codecov==2.0.15
+          pip3 install --upgrade coverage==4.5.4 codecov
           curl -L -o bazelisk "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64";
           chmod +x bazelisk && sudo mv bazelisk /usr/local/bin/bazel;
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
