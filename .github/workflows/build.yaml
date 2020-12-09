@@ -9,7 +9,6 @@ on: [pull_request]
 jobs:
   linux:
     runs-on: ubuntu-20.04
-    container: sublimetext/unittesting
     steps:
       - uses: actions/checkout@v1
       - run: which clang-10
