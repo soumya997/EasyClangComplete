@@ -12,8 +12,8 @@ jobs:
     container: sublimetext/unittesting
     steps:
       - uses: actions/checkout@v1
-      - run: ls /usr/bin | grep clang
-      - run: ls /usr/local/bin | grep clang
+      - run: which clang-10
+      - run: which clang++-10
       - name: Install prerequisites
         run: |
           sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-10 100
