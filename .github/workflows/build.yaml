@@ -11,20 +11,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
-      - run: which clang-10
-      - run: which clang++-10
       - name: Install prerequisites
         run: |
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-10 100
-          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 100
-          which clang
-          apt-get update
-          apt-get install cmake python3-pip -y
           pip3 install --upgrade pip pycodestyle pep257
           pip3 install --upgrade coverage==4.5.4 codecov
           pip3 install --upgrade mkdocs mkdocs-material
-          curl -L -o bazelisk "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64";
-          chmod +x bazelisk && sudo mv bazelisk /usr/local/bin/bazel;
       - run: sh -e /etc/init.d/xvfb start
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - name: Run tests
