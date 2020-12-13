@@ -34,16 +34,16 @@ SettingsStorage = settings_storage.SettingsStorage
 ViewConfigManager = view_config_manager.ViewConfigManager
 Popup = popups.Popup
 
-test_file = namedtuple('test_file', 'name')
-test_cursor = namedtuple('test_cursor', 'file line')
-test_extent = namedtuple('test_extent', 'start end')
+test_file = namedtuple("test_file", "name")
+test_cursor = namedtuple("test_cursor", "file line")
+test_extent = namedtuple("test_extent", "start end")
 
 
 def cleanup_trailing_spaces(message):
     """We need to cleanup trailing spaces as Sublime text removes them."""
-    actual_msg_array = message.split('\n')
+    actual_msg_array = message.split("\n")
     actual_msg_array = [s.rstrip() for s in actual_msg_array]
-    return '\n'.join(actual_msg_array)
+    return "\n".join(actual_msg_array)
 
 
 def should_run_objc_tests():
@@ -84,9 +84,7 @@ class TestErrorVis:
 
     def test_popups_init(self):
         """Test that setup view correctly sets up the popup."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         completer, _ = self.set_up_completer()
         self.assertIsNotNone(completer.error_vis)
@@ -95,29 +93,27 @@ class TestErrorVis:
 
     def test_generate_errors(self):
         """Test that errors get correctly generated and cleared."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         completer, _ = self.set_up_completer()
         self.assertIsNotNone(completer.error_vis)
         err_dict = completer.error_vis.err_regions
         v_id = self.view.buffer_id()
 
-        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(10, 3))
+        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(10, 3))
 
         self.assertTrue(v_id in err_dict)
         self.assertEqual(len(err_dict[v_id]), 1)
         self.assertIn(cursor_row_col.row, err_dict[v_id])
         self.assertEqual(len(err_dict[v_id][cursor_row_col.row]), 1)
-        self.assertEqual(err_dict[v_id][cursor_row_col.row][0]['row'],
-                         cursor_row_col.row)
-        self.assertEqual(err_dict[v_id][cursor_row_col.row][0]['col'],
-                         cursor_row_col.col)
+        self.assertEqual(
+            err_dict[v_id][cursor_row_col.row][0]["row"], cursor_row_col.row
+        )
+        self.assertEqual(
+            err_dict[v_id][cursor_row_col.row][0]["col"], cursor_row_col.col
+        )
         expected_error = "expected unqualified-id"
-        self.assertIn(expected_error,
-                      err_dict[v_id][cursor_row_col.row][0]['error'])
+        self.assertIn(expected_error, err_dict[v_id][cursor_row_col.row][0]["error"])
 
         # not clear errors:
         completer.error_vis.clear(self.view)
@@ -129,8 +125,8 @@ class TestErrorVis:
 
     def test_get_text_by_extent_multifile(self):
         """Test getting text from multifile extent."""
-        file1 = test_file('file1.c')
-        file2 = test_file('file2.c')
+        file1 = test_file("file1.c")
+        file2 = test_file("file2.c")
         cursor1 = test_cursor(file1, 1)
         cursor2 = test_cursor(file2, 6)
         ext = test_extent(cursor1, cursor2)
@@ -138,42 +134,34 @@ class TestErrorVis:
 
     def test_get_text_by_extent_oneline(self):
         """Test getting text from oneline extent."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         file1 = test_file(file_name)
         cursor1 = test_cursor(file1, 8)
         cursor2 = test_cursor(file1, 8)
         ext = test_extent(cursor1, cursor2)
-        self.assertEqual(Popup.get_text_by_extent(ext), '  A a;\n')
+        self.assertEqual(Popup.get_text_by_extent(ext), "  A a;\n")
 
     def test_get_text_by_extent_multiline(self):
         """Test getting text from multiline extent."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         file1 = test_file(file_name)
         cursor1 = test_cursor(file1, 8)
         cursor2 = test_cursor(file1, 9)
         ext = test_extent(cursor1, cursor2)
-        self.assertEqual(Popup.get_text_by_extent(ext), '  A a;\n  a.\n')
+        self.assertEqual(Popup.get_text_by_extent(ext), "  A a;\n  a.\n")
 
     def test_get_text_by_extent_unicode(self):
         """Test getting text from file that contains unicode."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_unicode.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test_unicode.cpp")
         file1 = test_file(file_name)
         cursor1 = test_cursor(file1, 4)
         cursor2 = test_cursor(file1, 4)
         ext = test_extent(cursor1, cursor2)
-        self.assertEqual(Popup.get_text_by_extent(ext), 'class Foo {};\n')
+        self.assertEqual(Popup.get_text_by_extent(ext), "class Foo {};\n")
 
     def test_error(self):
         """Test getting text from multiline extent."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         _, settings = self.set_up_completer()
         settings.popup_maximum_width = 1800
@@ -191,9 +179,7 @@ allow_code_wrap: true
 
     def test_warning(self):
         """Test generating a simple warning."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         _, settings = self.set_up_completer()
         settings.popup_maximum_width = 1800
@@ -213,7 +199,7 @@ allow_code_wrap: true
         """Test transforming an error dict into a list."""
         error_dicts = [
             {"error": "error_1", "severity": 1},
-            {"error": "error_2", "severity": 2}
+            {"error": "error_2", "severity": 2},
         ]
         max_severity, msg_list = PopupErrorVis._as_msg_list(error_dicts)
         self.assertEqual(max_severity, 2)
@@ -226,15 +212,12 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         settings.show_index_references = False
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(6),
-                         "int main(int argc, char const *argv[]) {")
+        self.assertEqual(self.get_row(6), "int main(int argc, char const *argv[]) {")
         pos = self.view.text_point(6, 7)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -245,7 +228,9 @@ allow_code_wrap: true
 !!! panel-info "ECC: Info"
     ## Declaration:
     int [main]({file}:7:5) (int argc, const char *[] argv)
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         self.assertEqual(info_popup.as_markdown(), expected_info_msg)
         # cleanup
         self.tear_down_completer()
@@ -255,9 +240,7 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_info.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test_info.cpp")
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         settings.show_index_references = False
@@ -294,7 +277,9 @@ allow_code_wrap: true
     }};
 
     ```
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -307,9 +292,7 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_info.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test_info.cpp")
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         settings.show_index_references = False
@@ -337,7 +320,9 @@ allow_code_wrap: true
     @param[in]  a     param a
     @param[in]  b     param b
     ```
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -350,17 +335,17 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_info_arguments_link.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_info_arguments_link.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         settings.show_index_references = False
-        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(10, 15))
+        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(10, 15))
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(cursor_row_col.row),
-                         "  cool_class.foo(Foo(), nullptr);")
+        self.assertEqual(
+            self.get_row(cursor_row_col.row), "  cool_class.foo(Foo(), nullptr);"
+        )
         location = cursor_row_col.as_1d_location(self.view)
         action_request = ActionRequest(self.view, location)
         request, info_popup = completer.info(action_request, settings)
@@ -372,7 +357,9 @@ allow_code_wrap: true
 !!! panel-info "ECC: Info"
     ## Declaration:
     void [foo]({file}:5:8) ([Foo]({file}:1:7) a, [Foo]({file}:1:7) \\* b)
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -387,14 +374,15 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(65),
-                         "  [interface interfaceMethodVoidNoParameters];")
+        self.assertEqual(
+            self.get_row(65), "  [interface interfaceMethodVoidNoParameters];"
+        )
         pos = self.view.text_point(65, 14)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -410,7 +398,9 @@ allow_code_wrap: true
     ```
     Brief comment.
     ```
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -425,16 +415,16 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(69),
-                         ("  [interface "
-                          "interfaceMethodVoidTwoParametersSecondUnnamed"
-                          ":0 :0];"))
+        self.assertEqual(
+            self.get_row(69),
+            ("  [interface " "interfaceMethodVoidTwoParametersSecondUnnamed" ":0 :0];"),
+        )
         pos = self.view.text_point(69, 14)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -464,16 +454,17 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
         self.assertEqual(
             self.get_row(70),
             "  [Interface interfaceClassMethodFooTwoFooParameters:nil "
-            + "fooParam2:nil];")
+            + "fooParam2:nil];",
+        )
         pos = self.view.text_point(70, 14)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -502,14 +493,15 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(73),
-                         "  [interface protocolMethodVoidNoParameters];")
+        self.assertEqual(
+            self.get_row(73), "  [interface protocolMethodVoidNoParameters];"
+        )
         pos = self.view.text_point(73, 14)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -525,7 +517,9 @@ allow_code_wrap: true
     ```
     Has a brief comment
     ```
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -540,14 +534,13 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(77),
-                         "  [Interface protocolClassMethod];")
+        self.assertEqual(self.get_row(77), "  [Interface protocolClassMethod];")
         pos = self.view.text_point(77, 14)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -559,7 +552,9 @@ allow_code_wrap: true
 !!! panel-info "ECC: Info"
     ## Declaration:
     +(void)[protocolClassMethod]({file}:14:10)
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -574,14 +569,15 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(80),
-                         "  [interface categoryMethodVoidNoParameters];")
+        self.assertEqual(
+            self.get_row(80), "  [interface categoryMethodVoidNoParameters];"
+        )
         pos = self.view.text_point(80, 14)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -593,7 +589,9 @@ allow_code_wrap: true
 !!! panel-info "ECC: Info"
     ## Declaration:
     -(void)[categoryMethodVoidNoParameters]({file}:54:10)
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -608,15 +606,15 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
         self.assertEqual(
-            self.get_row(33),
-            "  -(void)interfaceMethodVoidNoParameters {}")
+            self.get_row(33), "  -(void)interfaceMethodVoidNoParameters {}"
+        )
         pos = self.view.text_point(33, 14)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -632,7 +630,9 @@ allow_code_wrap: true
     ```
     Brief comment.
     ```
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -647,14 +647,13 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(13),
-                         "  +(void)protocolClassMethod;")
+        self.assertEqual(self.get_row(13), "  +(void)protocolClassMethod;")
         pos = self.view.text_point(13, 14)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -666,7 +665,9 @@ allow_code_wrap: true
 !!! panel-info "ECC: Info"
     ## Declaration:
     +(void)[protocolClassMethod]({file}:14:10)
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -681,14 +682,13 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(17),
-                         "@interface Interface : NSObject<Protocol>")
+        self.assertEqual(self.get_row(17), "@interface Interface : NSObject<Protocol>")
         pos = self.view.text_point(17, 34)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -713,7 +713,9 @@ allow_code_wrap: true
     @end
 
     ```
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -728,14 +730,13 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(52),
-                         "@interface Interface (Category)")
+        self.assertEqual(self.get_row(52), "@interface Interface (Category)")
         pos = self.view.text_point(52, 2)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -754,7 +755,9 @@ allow_code_wrap: true
     @end
 
     ```
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -769,14 +772,13 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(30),
-                         "@implementation Interface")
+        self.assertEqual(self.get_row(30), "@implementation Interface")
         pos = self.view.text_point(30, 18)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -804,7 +806,9 @@ allow_code_wrap: true
     @end
 
     ```
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -820,14 +824,13 @@ allow_code_wrap: true
         """
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_c_covariant.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_c_covariant.m"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(3),
-                         "-(MyCovariant<Foo*>*)covariantMethod;")
+        self.assertEqual(self.get_row(3), "-(MyCovariant<Foo*>*)covariantMethod;")
         pos = self.view.text_point(3, 22)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -839,7 +842,9 @@ allow_code_wrap: true
 !!! panel-info "ECC: Info"
     ## Declaration:
     -([MyCovariant&lt;Foo *&gt; *]({file}:3:12))[covariantMethod]({file}:4:22)
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -856,14 +861,15 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_templates.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_templates.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(8),
-                         "  TemplateClass<Foo, int, 123> instanceClassTypeInt;")
+        self.assertEqual(
+            self.get_row(8), "  TemplateClass<Foo, int, 123> instanceClassTypeInt;"
+        )
         pos = self.view.text_point(8, 32)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -894,14 +900,15 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_templates.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_templates.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(8),
-                         "  TemplateClass<Foo, int, 123> instanceClassTypeInt;")
+        self.assertEqual(
+            self.get_row(8), "  TemplateClass<Foo, int, 123> instanceClassTypeInt;"
+        )
         pos = self.view.text_point(8, 32)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -934,14 +941,15 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_templates.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_templates.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(9),
-                         "  TemplateClass<Foo> instanceClassAndDefaults;")
+        self.assertEqual(
+            self.get_row(9), "  TemplateClass<Foo> instanceClassAndDefaults;"
+        )
         pos = self.view.text_point(9, 22)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -973,14 +981,15 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_templates.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_templates.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(10),
-                         "  TemplateClass<TemplateClass<Foo>> instanceNested;")
+        self.assertEqual(
+            self.get_row(10), "  TemplateClass<TemplateClass<Foo>> instanceNested;"
+        )
         pos = self.view.text_point(10, 37)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -1011,14 +1020,13 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_templates.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_templates.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(11),
-                         "  TemplateClass<Foo*> instancePointer;")
+        self.assertEqual(self.get_row(11), "  TemplateClass<Foo*> instancePointer;")
         pos = self.view.text_point(11, 23)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -1049,14 +1057,13 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_templates.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_templates.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(12),
-                         "  TemplateClass<Foo&> instanceRef;")
+        self.assertEqual(self.get_row(12), "  TemplateClass<Foo&> instanceRef;")
         pos = self.view.text_point(12, 23)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -1086,14 +1093,13 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_templates.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_templates.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(13),
-                         "  TemplateClass<Foo&&> instanceRValueRef;")
+        self.assertEqual(self.get_row(13), "  TemplateClass<Foo&&> instanceRValueRef;")
         pos = self.view.text_point(13, 24)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -1124,15 +1130,16 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_templates.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_templates.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         settings.show_index_references = False
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(8),
-                         "  TemplateClass<Foo, int, 123> instanceClassTypeInt;")
+        self.assertEqual(
+            self.get_row(8), "  TemplateClass<Foo, int, 123> instanceClassTypeInt;"
+        )
         pos = self.view.text_point(8, 3)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -1154,7 +1161,9 @@ allow_code_wrap: true
     }};
 
     ```
-""".format(file=file_name)
+""".format(
+            file=file_name
+        )
         # Make sure we remove trailing spaces on the right to comply with how
         # sublime text handles this.
         actual_msg = cleanup_trailing_spaces(info_popup.as_markdown())
@@ -1170,15 +1179,16 @@ allow_code_wrap: true
         if not self.use_libclang:
             # Ignore this test for binary completer.
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_templates.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_templates.cpp"
+        )
         self.set_up_view(file_name)
         completer, settings = self.set_up_completer()
         settings.show_index_references = False
         # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(14),
-                         "  instanceRValueRef.foo(instanceRValueRef);")
+        self.assertEqual(
+            self.get_row(14), "  instanceRValueRef.foo(instanceRValueRef);"
+        )
         pos = self.view.text_point(14, 21)
         action_request = ActionRequest(self.view, pos)
         request, info_popup = completer.info(action_request, settings)
@@ -1203,9 +1213,11 @@ allow_code_wrap: true
 
 class TestErrorVisBin(TestErrorVis, GuiTestWrapper):
     """Test class for the binary based completer."""
+
     use_libclang = False
 
 
 class TestErrorVisLib(TestErrorVis, GuiTestWrapper):
     """Test class for the libclang based completer."""
+
     use_libclang = True

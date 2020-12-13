@@ -60,19 +60,20 @@ class TestFlag(TestCase):
 
     def test_builder(self):
         """Test tokenizing a list of all split flags."""
-        flag1 = Flag.Builder().with_prefix('hello').with_body('world').build()
+        flag1 = Flag.Builder().with_prefix("hello").with_body("world").build()
         self.assertEqual(Flag("hello", "world"), flag1)
-        flag3 = Flag.Builder().from_unparsed_string('-Iworld').build()
+        flag3 = Flag.Builder().from_unparsed_string("-Iworld").build()
         self.assertEqual(Flag("-I", "world"), flag3)
-        flag4 = Flag.Builder().from_unparsed_string('-include world').build()
+        flag4 = Flag.Builder().from_unparsed_string("-include world").build()
         self.assertEqual(Flag("-include", "world", " "), flag4)
         # Check that we don't trigger on /U flag.
         import platform
+
         if platform.system() != "Windows":
-            flag5 = Flag.Builder().from_unparsed_string('/User/blah').build()
+            flag5 = Flag.Builder().from_unparsed_string("/User/blah").build()
             self.assertEqual(Flag("", "", ""), flag5)
 
     def test_builder_invalid(self):
         """Test tokenizing invalid flags."""
-        flag2 = Flag.Builder().from_unparsed_string('hello world').build()
+        flag2 = Flag.Builder().from_unparsed_string("hello world").build()
         self.assertEqual(Flag("", ""), flag2)

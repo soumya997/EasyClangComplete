@@ -32,8 +32,11 @@ def has_libclang():
         str: row contents
     """
     # Older version of Sublime Text x64 have ctypes crash bug.
-    if platform.system() == "Windows" and sublime.arch() == "x64" and \
-            int(sublime.version()) < 3123:
+    if (
+        platform.system() == "Windows"
+        and sublime.arch() == "x64"
+        and int(sublime.version()) < 3123
+    ):
         return False
     return True
 
@@ -84,16 +87,12 @@ class BaseTestCompleter(object):
 
     def test_setup_view(self):
         """Test that setup view correctly sets up the view."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.check_view(file_name)
 
     def test_init(self):
         """Test that the completer is properly initialized."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         completer = self.set_up_completer()
 
@@ -102,16 +101,13 @@ class BaseTestCompleter(object):
 
     def test_complete(self):
         """Test autocompletion for user type."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
 
         completer = self.set_up_completer()
 
         # Check the current cursor position is completable.
-        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(9, 5))
+        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(9, 5))
         self.assertEqual(self.get_row(cursor_row_col.row), "  a.")
         location = cursor_row_col.as_1d_location(self.view)
         current_word = self.view.substr(self.view.word(location))
@@ -123,23 +119,20 @@ class BaseTestCompleter(object):
 
         # Verify that we got the expected completions back.
         self.assertIsNotNone(completions)
-        expected = ['foo\tvoid foo(double a)', 'foo(${1:double a})']
+        expected = ["foo\tvoid foo(double a)", "foo(${1:double a})"]
 
         self.assertIn(expected, completions)
         self.tear_down_completer()
 
     def test_excluded_private(self):
         """Test autocompletion for user type."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
 
         completer = self.set_up_completer()
 
         # Check the current cursor position is completable.
-        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(9, 5))
+        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(9, 5))
         self.assertEqual(self.get_row(cursor_row_col.row), "  a.")
         location = cursor_row_col.as_1d_location(self.view)
         current_word = self.view.substr(self.view.word(location))
@@ -151,8 +144,8 @@ class BaseTestCompleter(object):
 
         # Verify that we got the expected completions back.
         self.assertIsNotNone(completions)
-        expected = ['foo\tvoid foo(double a)', 'foo(${1:double a})']
-        unexpected = ['foo\tvoid foo(int a)', 'foo(${1:int a})']
+        expected = ["foo\tvoid foo(double a)", "foo(${1:double a})"]
+        unexpected = ["foo\tvoid foo(int a)", "foo(${1:int a})"]
         if self.use_libclang:
             self.assertIn(expected, completions)
             self.assertNotIn(unexpected, completions)
@@ -160,16 +153,13 @@ class BaseTestCompleter(object):
 
     def test_excluded_destructor(self):
         """Test autocompletion for user type."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
 
         completer = self.set_up_completer()
 
         # Check the current cursor position is completable.
-        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(9, 5))
+        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(9, 5))
         self.assertEqual(self.get_row(cursor_row_col.row), "  a.")
         location = cursor_row_col.as_1d_location(self.view)
         current_word = self.view.substr(self.view.word(location))
@@ -181,7 +171,7 @@ class BaseTestCompleter(object):
 
         # Verify that we got the expected completions back.
         self.assertIsNotNone(completions)
-        destructor = ['~A\tvoid ~A()', '~A()']
+        destructor = ["~A\tvoid ~A()", "~A()"]
         if self.use_libclang:
             self.assertNotIn(destructor, completions)
         else:
@@ -190,16 +180,13 @@ class BaseTestCompleter(object):
 
     def test_complete_vector(self):
         """Test that we can complete vector members."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_vector.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test_vector.cpp")
         self.set_up_view(file_name)
 
         completer = self.set_up_completer()
 
         # Check the current cursor position is completable.
-        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(4, 7))
+        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(4, 7))
         self.assertEqual(self.get_row(cursor_row_col.row), "  vec.")
         location = cursor_row_col.as_1d_location(self.view)
         current_word = self.view.substr(self.view.word(location))
@@ -211,7 +198,7 @@ class BaseTestCompleter(object):
 
         # Verify that we got the expected completions back.
         self.assertIsNotNone(completions)
-        expected = ['clear\tvoid clear()', 'clear()']
+        expected = ["clear\tvoid clear()", "clear()"]
         self.assertIn(expected, completions)
         self.tear_down_completer()
 
@@ -219,9 +206,7 @@ class BaseTestCompleter(object):
         """Test that we can complete Objective C properties."""
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_property.m')
+        file_name = path.join(path.dirname(__file__), "test_files", "test_property.m")
         self.set_up_view(file_name)
 
         completer = self.set_up_completer()
@@ -238,7 +223,7 @@ class BaseTestCompleter(object):
 
         # Verify that we got the expected completions back.
         self.assertIsNotNone(completions)
-        expected = ['boolProperty\tBOOL boolProperty', 'boolProperty']
+        expected = ["boolProperty\tBOOL boolProperty", "boolProperty"]
         self.assertIn(expected, completions)
         self.tear_down_completer()
 
@@ -246,9 +231,9 @@ class BaseTestCompleter(object):
         """Test that we can complete Objective C void methods."""
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_void_method.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_void_method.m"
+        )
         self.set_up_view(file_name)
 
         completer = self.set_up_completer()
@@ -265,7 +250,7 @@ class BaseTestCompleter(object):
 
         # Verify that we got the expected completions back.
         self.assertIsNotNone(completions)
-        expected = ['voidMethod\tvoid voidMethod', 'voidMethod']
+        expected = ["voidMethod\tvoid voidMethod", "voidMethod"]
         self.assertIn(expected, completions)
         self.tear_down_completer()
 
@@ -273,37 +258,9 @@ class BaseTestCompleter(object):
         """Test that we can complete Objective C methods with one parameter."""
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_method_one_parameter.m')
-        self.set_up_view(file_name)
-
-        completer = self.set_up_completer()
-
-        # Check the current cursor position is completable.
-        self.assertEqual(self.get_row(6), "  [foo ")
-        pos = self.view.text_point(6, 7)
-        current_word = self.view.substr(self.view.word(pos))
-        self.assertEqual(current_word, " \n")
-
-        # Load the completions.
-        request = ActionRequest(self.view, pos)
-        (_, completions) = completer.complete(request)
-
-        # Verify that we got the expected completions back.
-        self.assertIsNotNone(completions)
-        expected = ['oneParameterMethod:\tvoid oneParameterMethod:(BOOL)',
-                    'oneParameterMethod:${1:(BOOL)}']
-        self.assertIn(expected, completions)
-        self.tear_down_completer()
-
-    def test_complete_objc_method_multiple_parameters(self):
-        """Test that we can complete Objective C methods with 2+ parameters."""
-        if not should_run_objc_tests() or not self.use_libclang:
-            return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_method_two_parameters.m')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_method_one_parameter.m"
+        )
         self.set_up_view(file_name)
 
         completer = self.set_up_completer()
@@ -321,8 +278,39 @@ class BaseTestCompleter(object):
         # Verify that we got the expected completions back.
         self.assertIsNotNone(completions)
         expected = [
-            'bar:strParam:\tNSInteger * bar:(BOOL) strParam:(NSString *)',
-            'bar:${1:(BOOL)} strParam:${2:(NSString *)}']
+            "oneParameterMethod:\tvoid oneParameterMethod:(BOOL)",
+            "oneParameterMethod:${1:(BOOL)}",
+        ]
+        self.assertIn(expected, completions)
+        self.tear_down_completer()
+
+    def test_complete_objc_method_multiple_parameters(self):
+        """Test that we can complete Objective C methods with 2+ parameters."""
+        if not should_run_objc_tests() or not self.use_libclang:
+            return
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_method_two_parameters.m"
+        )
+        self.set_up_view(file_name)
+
+        completer = self.set_up_completer()
+
+        # Check the current cursor position is completable.
+        self.assertEqual(self.get_row(6), "  [foo ")
+        pos = self.view.text_point(6, 7)
+        current_word = self.view.substr(self.view.word(pos))
+        self.assertEqual(current_word, " \n")
+
+        # Load the completions.
+        request = ActionRequest(self.view, pos)
+        (_, completions) = completer.complete(request)
+
+        # Verify that we got the expected completions back.
+        self.assertIsNotNone(completions)
+        expected = [
+            "bar:strParam:\tNSInteger * bar:(BOOL) strParam:(NSString *)",
+            "bar:${1:(BOOL)} strParam:${2:(NSString *)}",
+        ]
 
         self.assertIn(expected, completions)
         self.tear_down_completer()
@@ -331,9 +319,9 @@ class BaseTestCompleter(object):
         """Test that we can complete code in Objective-C++ files."""
         if not should_run_objc_tests() or not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_objective_cpp.mm')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_objective_cpp.mm"
+        )
         self.set_up_view(file_name)
 
         completer = self.set_up_completer()
@@ -350,8 +338,7 @@ class BaseTestCompleter(object):
 
         # Verify that we got the expected completions back.
         self.assertIsNotNone(completions)
-        expected = [
-            'clear\tvoid clear()', 'clear()']
+        expected = ["clear\tvoid clear()", "clear()"]
         self.assertIn(expected, completions)
         self.tear_down_completer()
 
@@ -370,9 +357,7 @@ class BaseTestCompleter(object):
 
     def test_cooperation_with_default_completions(self):
         """Empty clang completions should not hide default completions."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_errors.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test_errors.cpp")
         self.set_up_view(file_name)
 
         self.set_up_completer()
@@ -384,7 +369,7 @@ class BaseTestCompleter(object):
         self.assertEqual(current_word, ".\n")
 
         # Trigger default completions popup.
-        self.view.run_command('auto_complete')
+        self.view.run_command("auto_complete")
         self.assertTrue(self.view.is_auto_complete_visible())
         self.tear_down_completer()
 
@@ -392,9 +377,7 @@ class BaseTestCompleter(object):
         """Test getting declaration location."""
         if not self.use_libclang:
             return
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_location.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test_location.cpp")
         self.set_up_view(file_name)
 
         completer = self.set_up_completer()
@@ -402,10 +385,8 @@ class BaseTestCompleter(object):
         # Check the current cursor position is completable.
         row = 10
         col = 15
-        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(row, col))
-        self.assertEqual(self.get_row(cursor_row_col.row),
-                         "  cool_class.foo();")
+        cursor_row_col = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(row, col))
+        self.assertEqual(self.get_row(cursor_row_col.row), "  cool_class.foo();")
         location = cursor_row_col.as_1d_location(self.view)
         current_word = self.view.substr(self.view.word(location))
         self.assertEqual(current_word, "foo")
@@ -420,10 +401,13 @@ class BaseTestCompleter(object):
 
 class TestBinCompleter(BaseTestCompleter, GuiTestWrapper):
     """Test class for the binary based completer."""
+
     use_libclang = False
 
 
 if has_libclang():
+
     class TestLibCompleter(BaseTestCompleter, GuiTestWrapper):
         """Test class for the library based completer."""
+
         use_libclang = True

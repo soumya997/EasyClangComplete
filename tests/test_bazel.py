@@ -18,7 +18,7 @@ GuiTestWrapper = gui_test_wrapper.GuiTestWrapper
 OutputPanelHandler = output_panel_handler.OutputPanelHandler
 
 
-class MockFuture():
+class MockFuture:
     """A mock of a future to test our async code."""
 
     def __init__(self, content):
@@ -49,49 +49,43 @@ class TestBazelDbGeneration(object):
 
     def test_setup_view(self):
         """Test that setup view correctly sets up the view."""
-        file_name = path.join(path.dirname(__file__),
-                              'bazel',
-                              'good_project',
-                              'app',
-                              'main.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "bazel", "good_project", "app", "main.cpp"
+        )
         self.check_view(file_name)
 
     def test_good_project(self):
         """Test we can generate a valid compilation database with bazel."""
-        file_name = path.join(path.dirname(__file__),
-                              'bazel',
-                              'good_project',
-                              'app',
-                              'main.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "bazel", "good_project", "app", "main.cpp"
+        )
         self.set_up_view(file_name)
         output = Bazel.generate_compdb(self.view)
         self.assertNotIn("ERROR: ", output)
         future = MockFuture(output)
         Bazel.compdb_generated(future)
-        compdb_file = path.join(path.dirname(__file__),
-                                'bazel',
-                                'good_project',
-                                'compile_commands.json')
+        compdb_file = path.join(
+            path.dirname(__file__), "bazel", "good_project", "compile_commands.json"
+        )
         self.assertTrue(path.exists(compdb_file))
         import yaml
+
         with open(compdb_file) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
             self.assertEquals(len(data), 1)
             data = data[0]
-            self.assertIn('file', data)
-            self.assertIn('command', data)
-            self.assertEquals(data['file'], 'app/main.cpp')
-            self.assertIn('-x c++', data['command'])
-            self.assertIn('-c app/main.cpp', data['command'])
+            self.assertIn("file", data)
+            self.assertIn("command", data)
+            self.assertEquals(data["file"], "app/main.cpp")
+            self.assertIn("-x c++", data["command"])
+            self.assertIn("-c app/main.cpp", data["command"])
 
     def test_bad_project(self):
         """Test we can't generate from a wrong project."""
         self.maxDiff = None
-        file_name = path.join(path.dirname(__file__),
-                              'bazel',
-                              'bad_project',
-                              'app',
-                              'main.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "bazel", "bad_project", "app", "main.cpp"
+        )
         self.set_up_view(file_name)
         output = Bazel.generate_compdb(self.view)
         self.assertIn("ERROR: ", output)
@@ -100,26 +94,28 @@ class TestBazelDbGeneration(object):
         window = sublime.active_window()
         panel_view = window.find_output_panel(OutputPanelHandler._PANEL_TAG)
         panel_content = panel_view.substr(sublime.Region(0, panel_view.size()))
-        split_output = output.split('\n')
-        split_panel_content = panel_content.split('\n')
+        split_output = output.split("\n")
+        split_panel_content = panel_content.split("\n")
         self.assertTrue(len(split_panel_content) > 1)
         self.assertTrue(len(split_output) > 1)
-        del (split_panel_content[0])  # Ignore the first line.
+        del split_panel_content[0]  # Ignore the first line.
         self.assertEquals(len(split_panel_content), len(split_output))
         for panel_str, output_str in zip(split_panel_content, split_output):
             self.assertEquals(panel_str, output_str)
-        compdb_file = path.join(path.dirname(__file__),
-                                'bazel',
-                                'bad_project',
-                                'compile_commands.json')
+        compdb_file = path.join(
+            path.dirname(__file__), "bazel", "bad_project", "compile_commands.json"
+        )
         if path.exists(compdb_file):
             import yaml
+
             with open(compdb_file) as f:
                 data = yaml.load(f, Loader=yaml.FullLoader)
                 self.assertEquals(len(data), 0)
 
 
 if platform.system() == "Linux":
+
     class BazelTestRunner(TestBazelDbGeneration, GuiTestWrapper):
         """Run only if we are not on windows."""
+
         pass

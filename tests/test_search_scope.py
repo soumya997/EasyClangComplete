@@ -18,8 +18,7 @@ class test_search_scope(TestCase):
         """Test if we can init a search path from tree."""
         current_folder = path.dirname(path.abspath(__file__))
         parent_folder = path.dirname(current_folder)
-        scope = TreeSearchScope(from_folder=current_folder,
-                                to_folder=parent_folder)
+        scope = TreeSearchScope(from_folder=current_folder, to_folder=parent_folder)
         self.assertTrue(scope)
         self.assertEqual(current_folder, scope.from_folder)
         self.assertEqual(parent_folder, scope.to_folder)
@@ -36,8 +35,7 @@ class test_search_scope(TestCase):
         """Test that we can iterate a tree."""
         current_folder = path.dirname(path.abspath(__file__))
         parent_folder = path.dirname(current_folder)
-        scope = TreeSearchScope(from_folder=current_folder,
-                                to_folder=parent_folder)
+        scope = TreeSearchScope(from_folder=current_folder, to_folder=parent_folder)
         self.assertTrue(scope)
         self.assertIs(scope, iter(scope))
         self.assertEqual(current_folder, next(scope))
@@ -52,8 +50,7 @@ class test_search_scope(TestCase):
         """Test that we can iterate tree twice."""
         current_folder = path.dirname(path.abspath(__file__))
         parent_folder = path.dirname(current_folder)
-        scope = TreeSearchScope(from_folder=current_folder,
-                                to_folder=parent_folder)
+        scope = TreeSearchScope(from_folder=current_folder, to_folder=parent_folder)
         self.assertTrue(scope)
         self.assertIs(scope, iter(scope))
         self.assertEqual(current_folder, next(scope))

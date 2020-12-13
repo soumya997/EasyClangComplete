@@ -53,7 +53,8 @@ class GuiTestWrapper(TestCase):
         if cursor_position:
             self.view.sel().clear()
             self.view.sel().add(
-                sublime.Region(cursor_position.as_1d_location(self.view)))
+                sublime.Region(cursor_position.as_1d_location(self.view))
+            )
 
     def get_row(self, row):
         """Get text of a particular row.
@@ -71,7 +72,7 @@ class GuiTestWrapper(TestCase):
         self.set_up_view(file_path)
 
         self.assertEqual(self.view.file_name(), file_path)
-        file = open(file_path, 'r')
+        file = open(file_path, "r")
         row = 0
         line = file.readline()
         while line:

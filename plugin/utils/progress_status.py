@@ -9,18 +9,18 @@ Attributes:
 
 import sublime
 
-MSG_CHARS_MOON = u'🌑🌒🌓🌔🌕🌖🌗🌘'
-MSG_READY_MOON = u'✔'
-MSG_CHARS_COLOR_SUBLIME = u'⣾⣽⣻⢿⡿⣟⣯⣷'
-MSG_READY_COLOR_SUBLIME = '     READY      '
+MSG_CHARS_MOON = u"🌑🌒🌓🌔🌕🌖🌗🌘"
+MSG_READY_MOON = u"✔"
+MSG_CHARS_COLOR_SUBLIME = u"⣾⣽⣻⢿⡿⣟⣯⣷"
+MSG_READY_COLOR_SUBLIME = "     READY      "
 
 
 class BaseProgressStatus(object):
     """A base class for progress status."""
 
-    MSG_TAG = '000_ECC'
-    MSG_MASK = ' | {msg} |'
-    PROGRESS_MASK = 'ECC: [{progress}]'
+    MSG_TAG = "000_ECC"
+    MSG_MASK = " | {msg} |"
+    PROGRESS_MASK = "ECC: [{progress}]"
     FULL_MASK = PROGRESS_MASK + MSG_MASK
 
     def __init__(self):
@@ -46,9 +46,10 @@ class BaseProgressStatus(object):
         if not self.showing:
             return
         BaseProgressStatus.set_status(
-            BaseProgressStatus.PROGRESS_MASK.format(progress=self.msg_ready))
+            BaseProgressStatus.PROGRESS_MASK.format(progress=self.msg_ready)
+        )
 
-    def update_progress(self, message=''):
+    def update_progress(self, message=""):
         """Abstract method. Generate next message."""
         raise NotImplementedError("abstract method is called")
 
@@ -71,8 +72,8 @@ class MoonProgressStatus(BaseProgressStatus):
         mod = len(chars)
         self.idx = (self.idx + 1) % mod
         BaseProgressStatus.set_status(
-            BaseProgressStatus.FULL_MASK.format(
-                progress=chars[self.idx], msg=message))
+            BaseProgressStatus.FULL_MASK.format(progress=chars[self.idx], msg=message)
+        )
 
 
 class ColorSublimeProgressStatus(BaseProgressStatus):
@@ -89,11 +90,12 @@ class ColorSublimeProgressStatus(BaseProgressStatus):
         if not self.showing:
             return
         from random import sample
+
         mod = len(self.msg_chars)
         rands = [self.msg_chars[x % mod] for x in sample(range(100), 10)]
         BaseProgressStatus.set_status(
-            BaseProgressStatus.FULL_MASK.format(
-                progress=''.join(rands), msg=message))
+            BaseProgressStatus.FULL_MASK.format(progress="".join(rands), msg=message)
+        )
 
 
 class NoneSublimeProgressStatus(BaseProgressStatus):

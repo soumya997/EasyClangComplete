@@ -40,14 +40,13 @@ class ThreadPool:
         Args:
             max_workers (int): Maximum number of parallel workers.
         """
-        self.__thread_pool = futures.ThreadPoolExecutor(
-            max_workers=max_workers)
+        self.__thread_pool = futures.ThreadPoolExecutor(max_workers=max_workers)
 
         self.__lock = Lock()
         self.__progress_lock = Lock()
 
         self.__show_animation = False
-        self.__current_operation_name = ''
+        self.__current_operation_name = ""
 
         self.__progress_update_delay = 0.1
         self.__progress_idle_delay = 0.3
@@ -57,8 +56,9 @@ class ThreadPool:
 
         # start animation thread
         self.__progress_status = None
-        self.__progress_thread = Thread(target=self.__animate_progress,
-                                        daemon=True).start()
+        self.__progress_thread = Thread(
+            target=self.__animate_progress, daemon=True
+        ).start()
 
     @property
     def progress_status(self):
@@ -101,7 +101,8 @@ class ThreadPool:
         # This is a potentially dangerous operation, so protect it by a mutex.
         with self.__lock:
             self.__active_jobs[:] = [
-                job for job in self.__active_jobs if not job.future.done()]
+                job for job in self.__active_jobs if not job.future.done()
+            ]
             if len(self.__active_jobs) < 1:
                 self.__show_animation = False
             else:
@@ -116,7 +117,8 @@ class ThreadPool:
                     sleep_time = self.__progress_idle_delay
                 elif self.__show_animation:
                     self.__progress_status.update_progress(
-                        self.__current_operation_name)
+                        self.__current_operation_name
+                    )
                     sleep_time = self.__progress_update_delay
                 else:
                     self.__progress_status.show_as_ready()

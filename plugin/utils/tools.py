@@ -30,8 +30,9 @@ class Tools:
         return int(h) * 3600 + int(m) * 60 + int(s)
 
     @staticmethod
-    def run_command(command, shell=False, cwd=path.curdir, env=environ,
-                    stdin=None, default=None):
+    def run_command(
+        command, shell=False, cwd=path.curdir, env=environ, stdin=None, default=None
+    ):
         """Run a generic command in a subprocess.
 
         Args:
@@ -52,26 +53,28 @@ class Tools:
                 startupinfo.wShowWindow = subprocess.SW_HIDE
                 if stdin is None:
                     stdin = subprocess.PIPE
-            output = subprocess.check_output(command,
-                                             stdin=stdin,
-                                             stderr=subprocess.STDOUT,
-                                             shell=shell,
-                                             cwd=cwd,
-                                             env=env,
-                                             startupinfo=startupinfo)
-            output_text = ''.join(map(chr, output))
+            output = subprocess.check_output(
+                command,
+                stdin=stdin,
+                stderr=subprocess.STDOUT,
+                shell=shell,
+                cwd=cwd,
+                env=env,
+                startupinfo=startupinfo,
+            )
+            output_text = "".join(map(chr, output))
         except subprocess.CalledProcessError as e:
             output_text = e.output.decode("utf-8")
             _log.debug("Command finished with code: %s", e.returncode)
             _log.debug("Command output: \n%s", output_text)
         except OSError:
-            _log.debug(
-                "Executable file not found executing: {}".format(command))
+            _log.debug("Executable file not found executing: {}".format(command))
         return output_text
 
     @staticmethod
     def get_unique_str(init_string):
         """Generate md5 unique sting hash given init_string."""
         import hashlib
-        augmented_string = init_string + path.expanduser('~')
-        return hashlib.md5(augmented_string.encode('utf-8')).hexdigest()
+
+        augmented_string = init_string + path.expanduser("~")
+        return hashlib.md5(augmented_string.encode("utf-8")).hexdigest()

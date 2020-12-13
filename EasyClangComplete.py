@@ -34,7 +34,7 @@ from .plugin.flags_sources import bazel
 
 
 # Reload all modules modules ignoring those that contain the given string.
-module_reloader.ModuleReloader.reload_all(ignore_string='singleton')
+module_reloader.ModuleReloader.reload_all(ignore_string="singleton")
 
 # Set some aliases for simplicity.
 SettingsManager = settings_manager.SettingsManager
@@ -49,7 +49,6 @@ NoneSublimeProgressStatus = progress_status.NoneSublimeProgressStatus
 PosStatus = subl_bridge.PosStatus
 CMakeFile = flags_sources.cmake_file.CMakeFile
 CMakeFileCache = singleton.CMakeFileCache
-GenericCache = singleton.GenericCache
 ThreadPool = singleton_thread_pool.ThreadPool
 ThreadJob = thread_job.ThreadJob
 QuickPanelHandler = quick_panel_handler.QuickPanelHandler
@@ -60,11 +59,11 @@ Bazel = bazel.Bazel
 log = logging.getLogger("ECC")
 log.setLevel(logging.DEBUG)
 log.propagate = False
-formatter_default = logging.Formatter(
-    '[%(name)s:%(levelname)-7s]: %(message)s')
+formatter_default = logging.Formatter("[%(name)s:%(levelname)-7s]: %(message)s")
 formatter_verbose = logging.Formatter(
-    '[%(name)s:%(levelname)s]:[%(filename)s]:[%(funcName)s]:'
-    '[%(threadName)s]: %(message)s')
+    "[%(name)s:%(levelname)s]:[%(filename)s]:[%(funcName)s]:"
+    "[%(threadName)s]: %(message)s"
+)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 ch.setFormatter(formatter_default)
@@ -82,8 +81,8 @@ def plugin_loaded():
     We need it to initialize all the different classes that encapsulate
     functionality. We can only properly init them after sublime api is
     available."""
-    module_reloader.ModuleReloader.reload_all(ignore_string='singleton')
-    GenericCache.clear_all_caches()
+    module_reloader.ModuleReloader.reload_all(ignore_string="singleton")
+    singleton.clear_all_caches()
     handle_plugin_loaded_function()
 
 
@@ -121,7 +120,8 @@ class EccShowAllErrorsCommand(sublime_plugin.TextCommand):
             handler.on_done,
             sublime.MONOSPACE_FONT,
             start_idx,
-            handler.on_highlighted)
+            handler.on_highlighted,
+        )
 
 
 class EccGotoDeclarationCommand(sublime_plugin.TextCommand):
@@ -159,6 +159,7 @@ class CleanCmakeCommand(sublime_plugin.TextCommand):
         if not SublBridge.is_valid_view(self.view):
             return
         import gc
+
         file_path = self.view.file_name()
         cmake_cache = CMakeFileCache()
         try:
@@ -166,8 +167,7 @@ class CleanCmakeCommand(sublime_plugin.TextCommand):
             log.debug("Cleaning file: '%s'", cmake_file_path)
             del cmake_cache[file_path]
             del cmake_cache[cmake_file_path]
-            EasyClangComplete.view_config_manager.clear_for_view(
-                self.view.buffer_id())
+            EasyClangComplete.view_config_manager.clear_for_view(self.view.buffer_id())
             # Better safe than sorry. Cleanup!
             gc.collect()
             temp_proj_dir = CMakeFile.unique_folder_name(cmake_file_path)
@@ -194,7 +194,8 @@ class GenerateBazelCompDbCommand(sublime_plugin.TextCommand):
             name=ThreadJob.GENERATE_DB_TAG,
             function=Bazel.generate_compdb,
             callback=Bazel.compdb_generated,
-            args=[self.view])
+            args=[self.view],
+        )
         EasyClangComplete.thread_pool.new_job(job)
 
 
@@ -212,6 +213,7 @@ class EasyClangComplete(sublime_plugin.EventListener):
 
     Most of the functionality is delegated.
     """
+
     thread_pool = ThreadPool()
 
     view_config_manager = None
@@ -241,9 +243,7 @@ class EasyClangComplete(sublime_plugin.EventListener):
         self.loaded = True
         log.debug("handle plugin loaded")
         EasyClangComplete.settings_manager = SettingsManager()
-        # self.on_settings_changed()
-        EasyClangComplete.settings_manager.add_change_listener(
-            self.on_settings_changed)
+        EasyClangComplete.settings_manager.add_change_listener(self.on_settings_changed)
         self.on_settings_changed()
         # init view config manager
         EasyClangComplete.view_config_manager = ViewConfigManager()
@@ -257,8 +257,7 @@ class EasyClangComplete(sublime_plugin.EventListener):
         """Call when any of the settings changes."""
         log.debug("on settings changed handle")
         if not self.loaded:
-            log.warning(
-                " cannot process settings change as plugin is not loaded")
+            log.warning(" cannot process settings change as plugin is not loaded")
             return
         if not EasyClangComplete.settings_manager:
             EasyClangComplete.settings_manager = SettingsManager()
@@ -297,18 +296,18 @@ class EasyClangComplete(sublime_plugin.EventListener):
         if not SublBridge.is_valid_view(view):
             try:
                 EasyClangComplete.thread_pool.progress_status.erase_status()
-            except AttributeError as e:
-                log.debug("cannot clear status, %s", e)
+            except AttributeError as error:
+                log.debug("cannot clear status, %s", error)
             return
 
         settings = EasyClangComplete.settings_manager.settings_for_view(view)
-        if (not SublBridge.has_valid_syntax(view, settings)) \
-                or File.is_ignored(
-                    view.file_name(), settings.ignore_list):
+        if (not SublBridge.has_valid_syntax(view, settings)) or File.is_ignored(
+            view.file_name(), settings.ignore_list
+        ):
             try:
                 EasyClangComplete.thread_pool.progress_status.erase_status()
-            except AttributeError as e:
-                log.debug("cannot clear status, %s", e)
+            except AttributeError as error:
+                log.debug("cannot clear status, %s", error)
             return
         EasyClangComplete.thread_pool.progress_status.showing = True
         log.debug("on_activated_async view id %s", view.buffer_id())
@@ -317,7 +316,8 @@ class EasyClangComplete(sublime_plugin.EventListener):
             name=ThreadJob.UPDATE_TAG,
             callback=EasyClangComplete.config_updated,
             function=EasyClangComplete.view_config_manager.load_for_view,
-            args=[view, settings])
+            args=[view, settings],
+        )
         EasyClangComplete.thread_pool.new_job(job)
 
     def on_selection_modified_async(self, view):
@@ -333,14 +333,13 @@ class EasyClangComplete(sublime_plugin.EventListener):
             return
         if File.is_ignored(view.file_name(), settings.ignore_list):
             return
-        row_col = ZeroIndexedRowCol.from_current_cursor_pos(view)
-        view_config = EasyClangComplete.view_config_manager.get_from_cache(
-            view)
+        row_column = ZeroIndexedRowCol.from_current_cursor_pos(view)
+        view_config = EasyClangComplete.view_config_manager.get_from_cache(view)
         if not view_config:
             return
         if not view_config.completer:
             return
-        view_config.completer.error_vis.show_popup_if_needed(view, row_col.row)
+        view_config.completer.error_vis.show_popup_if_needed(view, row_column.row)
 
     def on_modified_async(self, view):
         """Call in a worker thread when view is modified.
@@ -350,8 +349,7 @@ class EasyClangComplete(sublime_plugin.EventListener):
         """
         if SublBridge.is_valid_view(view):
             log.debug("on_modified_async view id %s", view.buffer_id())
-            view_config = EasyClangComplete.view_config_manager.get_from_cache(
-                view)
+            view_config = EasyClangComplete.view_config_manager.get_from_cache(view)
             if not view_config:
                 return
             if not view_config.completer:
@@ -370,7 +368,7 @@ class EasyClangComplete(sublime_plugin.EventListener):
             return
         if not SublBridge.is_valid_view(view):
             return
-        if view.file_name().endswith('.sublime-project'):
+        if view.file_name().endswith(".sublime-project"):
             if not EasyClangComplete.settings_manager:
                 log.error("no settings manager, no cannot reload settings")
                 return
@@ -386,7 +384,8 @@ class EasyClangComplete(sublime_plugin.EventListener):
             name=ThreadJob.UPDATE_TAG,
             callback=EasyClangComplete.config_updated,
             function=EasyClangComplete.view_config_manager.load_for_view,
-            args=[view, settings])
+            args=[view, settings],
+        )
         EasyClangComplete.thread_pool.new_job(job)
         # invalidate current completions
         self.current_completions = None
@@ -414,7 +413,8 @@ class EasyClangComplete(sublime_plugin.EventListener):
             name=ThreadJob.CLEAR_TAG,
             callback=EasyClangComplete.config_removed,
             function=EasyClangComplete.view_config_manager.clear_for_view,
-            args=[file_id])
+            args=[file_id],
+        )
         EasyClangComplete.thread_pool.new_job(job)
 
     @staticmethod
@@ -471,9 +471,11 @@ class EasyClangComplete(sublime_plugin.EventListener):
         if not current_popup:
             return
         view = tooltip_request.get_view()
-        current_popup.show(view,
-                           location=tooltip_request.get_trigger_position(),
-                           on_navigate=EasyClangComplete.on_open_declaration)
+        current_popup.show(
+            view,
+            location=tooltip_request.get_trigger_position(),
+            on_navigate=EasyClangComplete.on_open_declaration,
+        )
 
     def completion_finished(self, future):
         """Call this callback when completion async function has returned.
@@ -539,7 +541,8 @@ class EasyClangComplete(sublime_plugin.EventListener):
             name=ThreadJob.INFO_TAG,
             callback=EasyClangComplete.info_finished,
             function=EasyClangComplete.view_config_manager.trigger_info,
-            args=[view, tooltip_request, settings])
+            args=[view, tooltip_request, settings],
+        )
         EasyClangComplete.thread_pool.new_job(job)
 
     def on_query_completions(self, view, prefix, locations):
@@ -581,8 +584,8 @@ class EasyClangComplete(sublime_plugin.EventListener):
         if self.current_completions and current_pos_id == current_job_id:
             log.debug("returning existing completions")
             return SublBridge.format_completions(
-                self.current_completions,
-                settings.hide_default_completions)
+                self.current_completions, settings.hide_default_completions
+            )
 
         # Verify that character under the cursor is one allowed trigger
         if pos_status == PosStatus.WRONG_TRIGGER:
@@ -600,8 +603,9 @@ class EasyClangComplete(sublime_plugin.EventListener):
             return SublBridge.SHOW_DEFAULT_COMPLETIONS
 
         EasyClangComplete.current_job_id = current_pos_id
-        log.debug("starting async auto_complete with id: %s",
-                  EasyClangComplete.current_job_id)
+        log.debug(
+            "starting async auto_complete with id: %s", EasyClangComplete.current_job_id
+        )
 
         if pos_status == PosStatus.COMPLETION_NEEDED:
             # submit async completion job
@@ -610,7 +614,8 @@ class EasyClangComplete(sublime_plugin.EventListener):
                 name=ThreadJob.COMPLETE_TAG,
                 callback=self.completion_finished,
                 function=config_manager.trigger_completion,
-                args=[view, completion_request])
+                args=[view, completion_request],
+            )
             EasyClangComplete.thread_pool.new_job(job)
         elif pos_status == PosStatus.COMPLETE_INCLUDES:
             log.debug("Completing includes")
@@ -623,10 +628,13 @@ class EasyClangComplete(sublime_plugin.EventListener):
                 name=ThreadJob.COMPLETE_INCLUDES_TAG,
                 callback=self.completion_finished,
                 function=include_parser.get_all_headers,
-                args=[include_folders,
-                      prefix,
-                      settings.force_unix_includes,
-                      completion_request])
+                args=[
+                    include_folders,
+                    prefix,
+                    settings.force_unix_includes,
+                    completion_request,
+                ],
+            )
             EasyClangComplete.thread_pool.new_job(job)
 
         # show default completions for now if allowed

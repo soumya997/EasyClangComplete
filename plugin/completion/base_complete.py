@@ -20,6 +20,7 @@ class BaseCompleter:
         version_str (str): version string of format "3.4.0"
         error_vis (obj): an object of error visualizer
     """
+
     name = "base"
 
     valid = False

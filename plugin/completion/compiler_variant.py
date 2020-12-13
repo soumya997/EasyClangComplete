@@ -15,8 +15,7 @@ class CompilerVariant(object):
     """Encapsulation of a compiler specific options."""
 
     need_lang_flags = True
-    init_flags = [Flag(prefix="", body="-c"),
-                  Flag(prefix="", body="-fsyntax-only")]
+    init_flags = [Flag(prefix="", body="-c"), Flag(prefix="", body="-fsyntax-only")]
 
     def errors_from_output(self, output):
         """Parse errors received from the compiler.
@@ -42,10 +41,11 @@ class ClangCompilerVariant(CompilerVariant):
     Attributes:
         error_regex (re): regex to find contents of an error
     """
+
     include_prefixes = ["-isystem", "-I", "-isysroot"]
-    error_regex = re.compile(r"(?P<file>.*)" +
-                             r":(?P<row>\d+):(?P<col>\d+)" +
-                             r":\s*.*error: (?P<error>.*)")
+    error_regex = re.compile(
+        r"(?P<file>.*)" + r":(?P<row>\d+):(?P<col>\d+)" + r":\s*.*error: (?P<error>.*)"
+    )
 
     def errors_from_output(self, output):
         """Parse errors received from clang binary output.
@@ -74,11 +74,14 @@ class ClangClCompilerVariant(ClangCompilerVariant):
     Attributes:
         error_regex (re): regex to find contents of an error
     """
+
     need_lang_flags = False
     include_prefixes = ["-I", "/I", "-msvc", "/msvc"]
-    error_regex = re.compile(r"(?P<file>.*)" +
-                             r"\((?P<row>\d+),(?P<col>\d+)\)\s*" +
-                             r":\s*.*error: (?P<error>.*)")
+    error_regex = re.compile(
+        r"(?P<file>.*)"
+        + r"\((?P<row>\d+),(?P<col>\d+)\)\s*"
+        + r":\s*.*error: (?P<error>.*)"
+    )
 
 
 class LibClangCompilerVariant(ClangCompilerVariant):
@@ -87,10 +90,13 @@ class LibClangCompilerVariant(ClangCompilerVariant):
     Attributes:
         POS_REGEX (re): regex to find position of an error
     """
-    POS_REGEX = re.compile(r"'(?P<file>.+)'.*" +  # file
-                           r"line\s(?P<row>\d+), " +  # row
-                           r"column\s(?P<col>\d+)")  # col
-    SEVERITY_TAG = 'severity'
+
+    POS_REGEX = re.compile(
+        r"'(?P<file>.+)'.*"
+        + r"line\s(?P<row>\d+), "  # file
+        + r"column\s(?P<col>\d+)"  # row
+    )  # col
+    SEVERITY_TAG = "severity"
 
     def errors_from_output(self, output):
         """Parse errors received from diagnostics of a translation unit.
@@ -118,7 +124,7 @@ class LibClangCompilerVariant(ClangCompilerVariant):
                 # not valid, continue
                 continue
             error_dict = pos_search.groupdict()
-            error_dict.update({'error': spelling})
+            error_dict.update({"error": spelling})
             error_dict = CompilerVariant._to_zero_based_index(error_dict)
             error_dict[LibClangCompilerVariant.SEVERITY_TAG] = severity
             errors.append(error_dict)

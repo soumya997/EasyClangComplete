@@ -20,14 +20,17 @@ class test_singleton(TestCase):
 
     def test_singleton(self):
         """Test if singleton returns a unique reference."""
+
         @singleton
         class A(object):
             """Class A."""
+
             pass
 
         @singleton
         class B(object):
             """Class B different from class A."""
+
             pass
 
         a = A()

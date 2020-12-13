@@ -42,8 +42,7 @@ class test_tools_command(GuiTestWrapper):
 
         """
         for _ in range(dist):
-            self.view.run_command("move",
-                                  {"by": "characters", "forward": forward})
+            self.view.run_command("move", {"by": "characters", "forward": forward})
 
     def test_next_line(self):
         """Test returning next line."""
@@ -55,9 +54,9 @@ class test_tools_command(GuiTestWrapper):
 
     def test_wrong_triggers(self):
         """Test that we don't complete on numbers and wrong triggers."""
-        self.set_up_view(path.join(path.dirname(__file__),
-                                   'test_files',
-                                   'test_wrong_triggers.cpp'))
+        self.set_up_view(
+            path.join(path.dirname(__file__), "test_files", "test_wrong_triggers.cpp")
+        )
         # Load the completions.
         manager = SettingsManager()
         settings = manager.user_settings()

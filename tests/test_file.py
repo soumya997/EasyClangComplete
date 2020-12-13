@@ -21,12 +21,9 @@ class test_file(TestCase):
         """Test if we can find a file."""
         current_folder = path.dirname(path.abspath(__file__))
         parent_folder = path.dirname(current_folder)
-        search_scope = SearchScope(from_folder=current_folder,
-                                   to_folder=parent_folder)
-        file = File.search(
-            file_name='README.md',
-            search_scope=search_scope)
-        expected = path.join(parent_folder, 'README.md')
+        search_scope = SearchScope(from_folder=current_folder, to_folder=parent_folder)
+        file = File.search(file_name="README.md", search_scope=search_scope)
+        expected = path.join(parent_folder, "README.md")
         self.assertIsNotNone(file)
         self.assertTrue(file.loaded())
         self.assertEqual(file.full_path, expected)
@@ -35,40 +32,40 @@ class test_file(TestCase):
         """Test if we can find a file."""
         current_folder = path.dirname(path.abspath(__file__))
         parent_folder = path.dirname(current_folder)
-        search_scope = SearchScope(from_folder=current_folder,
-                                   to_folder=parent_folder)
+        search_scope = SearchScope(from_folder=current_folder, to_folder=parent_folder)
         file = File.search(
-            file_name='README.md',
-            search_scope=search_scope,
-            search_content='plugin')
+            file_name="README.md", search_scope=search_scope, search_content="plugin"
+        )
         self.assertIsNotNone(file)
         self.assertTrue(file.loaded())
-        expected = path.join(parent_folder, 'README.md')
+        expected = path.join(parent_folder, "README.md")
         self.assertEqual(file.full_path, expected)
         file_fail = File.search(
-            file_name='README.md',
+            file_name="README.md",
             search_scope=search_scope,
-            search_content='text that is not in the file')
+            search_content="text that is not in the file",
+        )
         self.assertIsNone(file_fail)
 
     def test_find_file_content_list(self):
         """Test if we can find a file."""
         current_folder = path.dirname(path.abspath(__file__))
         parent_folder = path.dirname(current_folder)
-        search_scope = SearchScope(from_folder=current_folder,
-                                   to_folder=parent_folder)
+        search_scope = SearchScope(from_folder=current_folder, to_folder=parent_folder)
         file = File.search(
-            file_name='README.md',
+            file_name="README.md",
             search_scope=search_scope,
-            search_content=['non existing text', 'plugin'])
+            search_content=["non existing text", "plugin"],
+        )
         self.assertIsNotNone(file)
         self.assertTrue(file.loaded())
-        expected = path.join(parent_folder, 'README.md')
+        expected = path.join(parent_folder, "README.md")
         self.assertEqual(file.full_path, expected)
         file_fail = File.search(
-            file_name='README.md',
+            file_name="README.md",
             search_scope=search_scope,
-            search_content=['non existing text'])
+            search_content=["non existing text"],
+        )
         self.assertIsNone(file_fail)
 
     def test_canonical_path(self):
@@ -108,17 +105,17 @@ class test_file(TestCase):
 
     def test_ignore(self):
         """Test ignoring glob patterns."""
-        self.assertTrue(File.is_ignored('/tmp/hello', ['/tmp/*']))
-        self.assertTrue(File.is_ignored('/tmp/hello', ['/tmp*']))
-        self.assertTrue(File.is_ignored('/tmp/hello', ['', '/tmp*']))
-        self.assertTrue(File.is_ignored('/tmp/hello', ['', '/tmp/hell*']))
-        self.assertTrue(File.is_ignored('/tmp/hello/world', ['/tmp/*']))
+        self.assertTrue(File.is_ignored("/tmp/hello", ["/tmp/*"]))
+        self.assertTrue(File.is_ignored("/tmp/hello", ["/tmp*"]))
+        self.assertTrue(File.is_ignored("/tmp/hello", ["", "/tmp*"]))
+        self.assertTrue(File.is_ignored("/tmp/hello", ["", "/tmp/hell*"]))
+        self.assertTrue(File.is_ignored("/tmp/hello/world", ["/tmp/*"]))
 
-        self.assertFalse(File.is_ignored('/tmp/hello', ['/tmp/c*']))
+        self.assertFalse(File.is_ignored("/tmp/hello", ["/tmp/c*"]))
 
     def test_expand_all(self):
         """Test the globbing and wildcard expansion."""
-        current_dir_glob = path.join(path.dirname(__file__), '*')
+        current_dir_glob = path.join(path.dirname(__file__), "*")
         result = File.expand_all(current_dir_glob)
         self.assertIn(__file__, result)
 

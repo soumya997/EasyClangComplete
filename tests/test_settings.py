@@ -24,9 +24,7 @@ class test_settings(GuiTestWrapper):
 
     def test_setup_view(self):
         """Test that setup view correctly sets up the view."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.check_view(file_name)
 
     def test_init(self):
@@ -50,9 +48,9 @@ class test_settings(GuiTestWrapper):
 
     def test_parse_cmake_flags(self):
         """Testing that we can parse cmake flags."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_wrong_triggers.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_wrong_triggers.cpp"
+        )
         self.set_up_view(file_name)
         current_folder = path.dirname(__file__)
         flags_sources = [
@@ -62,8 +60,8 @@ class test_settings(GuiTestWrapper):
                     "-DBLAH={}/*".format(current_folder),
                     "-DSMTH=ON",
                     "-D XXX=1",
-                    "-D FLAG=word"
-                ]
+                    "-D FLAG=word",
+                ],
             }
         ]
 
@@ -74,13 +72,14 @@ class test_settings(GuiTestWrapper):
         self.assertTrue(valid)
         self.assertEquals(len(settings.flags_sources), 1)
         entry = settings.flags_sources[0]
-        self.assertIn('flags', entry)
-        flags = entry['flags']
+        self.assertIn("flags", entry)
+        flags = entry["flags"]
         self.assertEquals(len(flags), 4)
-        self.assertIn('-DSMTH=ON', flags)
-        self.assertIn('-D FLAG=word', flags)
-        self.assertIn('-D XXX=1', flags)
+        self.assertIn("-DSMTH=ON", flags)
+        self.assertIn("-D FLAG=word", flags)
+        self.assertIn("-D XXX=1", flags)
         import glob
+
         all_files = glob.glob(path.join(current_folder, "*"))
         for file in all_files:
             self.assertIn(file, flags[0])
@@ -88,9 +87,9 @@ class test_settings(GuiTestWrapper):
     def test_populate_flags(self):
         """Testing include population."""
         # open any existing file
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_wrong_triggers.cpp')
+        file_name = path.join(
+            path.dirname(__file__), "test_files", "test_wrong_triggers.cpp"
+        )
         self.set_up_view(file_name)
         # now test the things
         manager = SettingsManager()
@@ -98,12 +97,13 @@ class test_settings(GuiTestWrapper):
         valid, _ = settings.is_valid()
         self.assertTrue(valid)
 
-        p = path.join(sublime.packages_path(),
-                      "User",
-                      "EasyClangComplete.sublime-settings")
+        p = path.join(
+            sublime.packages_path(), "User", "EasyClangComplete.sublime-settings"
+        )
         if path.exists(p):
             user = sublime.load_resource(
-                "Packages/User/EasyClangComplete.sublime-settings")
+                "Packages/User/EasyClangComplete.sublime-settings"
+            )
             if "common_flags" in user:
                 # The user modified the default common flags, just skip the
                 # next few tests.
@@ -115,10 +115,12 @@ class test_settings(GuiTestWrapper):
 
         self.assertTrue(len(initial_common_flags) <= len(dirs))
 
-        reference_flag_0 = Flag.Builder().from_unparsed_string(
-            initial_common_flags[0]).build()
+        reference_flag_0 = (
+            Flag.Builder().from_unparsed_string(initial_common_flags[0]).build()
+        )
         self.assertIn(reference_flag_0, dirs)
 
-        reference_flag_1 = Flag.Builder().from_unparsed_string(
-            initial_common_flags[1]).build()
+        reference_flag_1 = (
+            Flag.Builder().from_unparsed_string(initial_common_flags[1]).build()
+        )
         self.assertNotIn(reference_flag_1, dirs)

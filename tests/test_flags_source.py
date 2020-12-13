@@ -25,12 +25,22 @@ class TestFlagsSource(TestCase):
     def test_parse_flags(self):
         """Test that the flags are parsed correctly."""
         from os import listdir
+
         current_folder = path.dirname(__file__)
-        folder_to_expand = path.join(current_folder, '*')
-        initial_str_flags = ["-I", current_folder, "-I" + current_folder,
-                             "-isystem", current_folder, "-std=c++11",
-                             "#simulate a comment",
-                             "-Iblah\n", "-I", "blah", "-I" + folder_to_expand]
+        folder_to_expand = path.join(current_folder, "*")
+        initial_str_flags = [
+            "-I",
+            current_folder,
+            "-I" + current_folder,
+            "-isystem",
+            current_folder,
+            "-std=c++11",
+            "#simulate a comment",
+            "-Iblah\n",
+            "-I",
+            "blah",
+            "-I" + folder_to_expand,
+        ]
         flags = Flag.tokenize_list(initial_str_flags, current_folder)
         expected_blah_path = path.join(current_folder, "blah")
         self.assertIn(Flag("-I", current_folder, " "), flags)

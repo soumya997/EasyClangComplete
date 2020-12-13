@@ -30,16 +30,12 @@ class TestViewConfig(GuiTestWrapper):
 
     def test_setup_view(self):
         """Test that setup view correctly sets up the view."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.check_view(file_name)
 
     def test_init(self):
         """Test initializing a view configuration."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         manager = SettingsManager()
         settings = manager.settings_for_view(self.view)
@@ -49,9 +45,7 @@ class TestViewConfig(GuiTestWrapper):
 
     def test_flags(self):
         """Test that flags are properly defined for a completer."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         manager = SettingsManager()
         settings = manager.settings_for_view(self.view)
@@ -59,12 +53,13 @@ class TestViewConfig(GuiTestWrapper):
         view_config = ViewConfig(self.view, settings)
 
         self.assertIsNotNone(view_config.completer)
-        p = path.join(sublime.packages_path(),
-                      "User",
-                      "EasyClangComplete.sublime-settings")
+        p = path.join(
+            sublime.packages_path(), "User", "EasyClangComplete.sublime-settings"
+        )
         if path.exists(p):
             user = sublime.load_resource(
-                "Packages/User/EasyClangComplete.sublime-settings")
+                "Packages/User/EasyClangComplete.sublime-settings"
+            )
             if "common_flags" in user:
                 # The user modified the default common flags, just skip the
                 # next few tests.
@@ -72,14 +67,13 @@ class TestViewConfig(GuiTestWrapper):
         completer = view_config.completer
         self.assertTrue(len(completer.clang_flags) >= 20)
         # test from the start
-        self.assertIn('-c', completer.clang_flags)
-        self.assertIn('-fsyntax-only', completer.clang_flags)
-        self.assertIn('-x', completer.clang_flags)
-        self.assertIn('c++', completer.clang_flags)
-        self.assertIn('-std=c++14', completer.clang_flags)
+        self.assertIn("-c", completer.clang_flags)
+        self.assertIn("-fsyntax-only", completer.clang_flags)
+        self.assertIn("-x", completer.clang_flags)
+        self.assertIn("c++", completer.clang_flags)
+        self.assertIn("-std=c++14", completer.clang_flags)
 
-        expected = path.join(path.dirname(
-            path.dirname(__file__)), 'local_folder')
+        expected = path.join(path.dirname(path.dirname(__file__)), "local_folder")
         # test include folders
         self.assertTrue(len(view_config.include_folders) >= 7)
         self.assertTrue(expected in view_config.include_folders)
@@ -102,27 +96,21 @@ class TestViewConfig(GuiTestWrapper):
 
     def test_needs_update(self):
         """Test view config changing when needed."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         manager = SettingsManager()
         settings = manager.settings_for_view(self.view)
         view_config = ViewConfig(self.view, settings)
         flags = view_config.completer.clang_flags
-        is_update_needed = view_config.needs_update(view_config.completer,
-                                                    flags)
+        is_update_needed = view_config.needs_update(view_config.completer, flags)
         self.assertFalse(is_update_needed)
         flags = []
-        is_update_needed = view_config.needs_update(
-            view_config.completer, flags)
+        is_update_needed = view_config.needs_update(view_config.completer, flags)
         self.assertTrue(is_update_needed)
 
     def test_needs_update_on_file_change(self):
         """Test view config changing when file changed."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test_changes.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test_changes.cpp")
         self.set_up_view(file_name)
         File.update_mod_time(file_name)
         is_update_needed = ViewConfig.needs_reparse(self.view)
@@ -135,9 +123,8 @@ class TestViewConfig(GuiTestWrapper):
     def test_age(self):
         """Test view config age."""
         import time
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         manager = SettingsManager()
         settings = manager.settings_for_view(self.view)
@@ -156,16 +143,12 @@ class TestViewConfigManager(GuiTestWrapper):
 
     def test_setup_view(self):
         """Test that setup view correctly sets up the view."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.check_view(file_name)
 
     def test_update(self):
         """Test that update is triggered."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         manager = SettingsManager()
         config_manager = ViewConfigManager(timer_period=1)
@@ -179,9 +162,7 @@ class TestViewConfigManager(GuiTestWrapper):
 
     def test_remove(self):
         """Test that config is removed."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         manager = SettingsManager()
         config_manager = ViewConfigManager(timer_period=1)
@@ -195,9 +176,8 @@ class TestViewConfigManager(GuiTestWrapper):
     def test_timer(self):
         """Test that config is removed on timer."""
         import time
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         manager = SettingsManager()
         config_manager = ViewConfigManager(timer_period=1)

@@ -40,7 +40,7 @@ class ViewConfigManager(object):
             timer_period (int, optional): How often to run timer in seconds.
             max_config_age (int, optional): How long should a TU stay alive.
         """
-        self.__timer_period = timer_period      # Seconds.
+        self.__timer_period = timer_period  # Seconds.
         self.__max_config_age = max_config_age  # Seconds.
         self.__rlock = RLock()
 
@@ -99,6 +99,7 @@ class ViewConfigManager(object):
             return weakref.proxy(res)
         except AttributeError as e:
             import traceback
+
             tb = traceback.format_exc()
             log.error("View became invalid while loading config: %s", e)
             log.error("Traceback: %s", tb)
@@ -108,6 +109,7 @@ class ViewConfigManager(object):
         """Clear config for a view id."""
         assert isinstance(v_id, int), "View id should be an int."
         import gc
+
         log.debug("Trying to clear config for view: %s", v_id)
         with self.__rlock:
             if v_id in self.__cache:
@@ -154,7 +156,8 @@ class ViewConfigManager(object):
             self.__timer_cache[ViewConfigManager.TAG].cancel()
             del self.__timer_cache[ViewConfigManager.TAG]
         self.__timer_cache[ViewConfigManager.TAG] = Timer(
-            interval=self.__timer_period, function=self.__remove_old_configs)
+            interval=self.__timer_period, function=self.__remove_old_configs
+        )
         self.__timer_cache[ViewConfigManager.TAG].start()
 
     def __remove_old_configs(self):
@@ -164,6 +167,7 @@ class ViewConfigManager(object):
         if there are any new configs to remove based on a timer.
         """
         import gc
+
         with self.__rlock:
             for v_id in list(self.__cache.keys()):
                 if self.__cache[v_id].is_older_than(self.__max_config_age):
@@ -171,9 +175,11 @@ class ViewConfigManager(object):
                     del self.__cache[v_id]
                     gc.collect()  # Explicitly collect garbage
                 else:
-                    log.debug("Skip young config: Age %s < %s. View: %s.",
-                              self.__cache[v_id].get_age(),
-                              self.__max_config_age,
-                              v_id)
+                    log.debug(
+                        "Skip young config: Age %s < %s. View: %s.",
+                        self.__cache[v_id].get_age(),
+                        self.__max_config_age,
+                        v_id,
+                    )
         # Run the timer again.
         self.__run_timer()

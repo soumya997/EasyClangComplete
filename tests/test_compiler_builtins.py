@@ -30,8 +30,9 @@ class TestFlag(TestCase):
         built_ins = CompilerBuiltIns("clang", None)
         self.assertTrue(len(built_ins.defines) > 0)
         self.assertTrue(len(built_ins.includes) > 0)
-        self.assertEqual(len(built_ins.flags),
-                         len(built_ins.defines) + len(built_ins.includes))
+        self.assertEqual(
+            len(built_ins.flags), len(built_ins.defines) + len(built_ins.includes)
+        )
 
     def test_c(self):
         """Test retrieval of flags for a C compiler.
@@ -54,21 +55,14 @@ class TestFlag(TestCase):
         sure, we check if C++ specific defines are in the retrieved flags.
         """
         test_data = [
-            {
-                "args": [],
-                "filename": None,
-                "compiler": "clang++"
-            },
-            {
-                "args": ["-x", "c++"],
-                "filename": None,
-                "compiler": "clang"
-            }
+            {"args": [], "filename": None, "compiler": "clang++"},
+            {"args": ["-x", "c++"], "filename": None, "compiler": "clang"},
         ]
         for test_set in test_data:
             print("Testing using test set: {}".format(test_set))
             built_ins = CompilerBuiltIns(
-                test_set["compiler"], test_set["args"], test_set["filename"])
+                test_set["compiler"], test_set["args"], test_set["filename"]
+            )
             is_cpp = False
             for define in built_ins.defines:
                 if define.startswith("-D__cplusplus="):
@@ -84,16 +78,13 @@ class TestFlag(TestCase):
         file.
         """
         test_data = [
-            {
-                "args": ["-x", "objective-c"],
-                "filename": None,
-                "compiler": "clang"
-            }
+            {"args": ["-x", "objective-c"], "filename": None, "compiler": "clang"}
         ]
         for test_set in test_data:
             print("Testing using test set: {}".format(test_set))
             built_ins = CompilerBuiltIns(
-                test_set["compiler"], test_set["args"], test_set["filename"])
+                test_set["compiler"], test_set["args"], test_set["filename"]
+            )
             self.assertIn("-D__OBJC__=1", built_ins.flags)
 
     def test_objcpp(self):
@@ -104,16 +95,13 @@ class TestFlag(TestCase):
         compiler argument list.
         """
         test_data = [
-            {
-                "args": ["-x", "objective-c++"],
-                "filename": None,
-                "compiler": "clang"
-            }
+            {"args": ["-x", "objective-c++"], "filename": None, "compiler": "clang"}
         ]
         for test_set in test_data:
             print("Testing using test set: {}".format(test_set))
             built_ins = CompilerBuiltIns(
-                test_set["compiler"], test_set["args"], test_set["filename"])
+                test_set["compiler"], test_set["args"], test_set["filename"]
+            )
             self.assertIn("-D__OBJC__=1", built_ins.flags)
             is_cpp = False
             for define in built_ins.defines:

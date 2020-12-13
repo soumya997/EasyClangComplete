@@ -49,21 +49,26 @@ class CompilerBuiltIns:
         else:
             working_dir = path.dirname(filename)
             filename = path.basename(filename)
-        _log.debug("Generating default flags from file '%s' in folder '%s'",
-                   filename, working_dir)
+        _log.debug(
+            "Generating default flags from file '%s' in folder '%s'",
+            filename,
+            working_dir,
+        )
 
-        self.__generate_flags(compiler=compiler,
-                              filename=filename,
-                              working_dir=working_dir,
-                              lang_flags=lang_flags)
+        self.__generate_flags(
+            compiler=compiler,
+            filename=filename,
+            working_dir=working_dir,
+            lang_flags=lang_flags,
+        )
 
     def __generate_flags(self, compiler, filename, working_dir, lang_flags):
         if not lang_flags:
             lang_flags = []
         if not compiler:
             return
-        cmd = [compiler] + lang_flags + ['-c', filename, '-dM', '-v', '-E']
-        cmd_str = ' '.join(cmd)
+        cmd = [compiler] + lang_flags + ["-c", filename, "-dM", "-v", "-E"]
+        cmd_str = " ".join(cmd)
         if cmd_str in CompilerBuiltIns.__cache:
             _log.debug("Using cached default flags.")
             self.__includes, self.__defines = CompilerBuiltIns.__cache[cmd_str]
@@ -75,7 +80,7 @@ class CompilerBuiltIns:
             return
 
         def get_includes(clang_output):
-            lines = clang_output.split('\n')
+            lines = clang_output.split("\n")
             start_idx_quotes = 0
             start_idx_angular = 0
             end_idx_quotes = 0
@@ -83,34 +88,36 @@ class CompilerBuiltIns:
             for idx, line in enumerate(lines):
                 if line.startswith('#include "..." search starts here'):
                     start_idx_quotes = idx + 1
-                elif line.startswith('#include <...> search starts here'):
+                elif line.startswith("#include <...> search starts here"):
                     end_idx_quotes = idx
                     start_idx_angular = idx + 1
-                elif line.startswith('End of search list'):
+                elif line.startswith("End of search list"):
                     end_idx_angular = idx
             includes = []
             for idx in range(start_idx_quotes, end_idx_quotes):
-                includes.append('-I' + path.normpath(lines[idx].strip()))
+                includes.append("-I" + path.normpath(lines[idx].strip()))
             for idx in range(start_idx_angular, end_idx_angular):
                 # We should append these also with -I to avoid errors in g++.
                 include_path = path.normpath(lines[idx].strip())
                 if "framework directory" in include_path:
-                    include_path = include_path \
-                        .replace("(framework directory)", "").strip()
-                    includes.append('-F' + include_path)
+                    include_path = include_path.replace(
+                        "(framework directory)", ""
+                    ).strip()
+                    includes.append("-F" + include_path)
                 else:
-                    includes.append('-I' + include_path)
+                    includes.append("-I" + include_path)
             return includes
 
         def get_defines(clang_output):
             import re
+
             defines = []
             for line in output.splitlines():
-                m = re.search(r'#define ([\w()]+) (.+)', line)
+                m = re.search(r"#define ([\w()]+) (.+)", line)
                 if m is not None:
                     defines.append("-D{}={}".format(m.group(1), m.group(2)))
                 else:
-                    m = re.search(r'#define (\w+)', line)
+                    m = re.search(r"#define (\w+)", line)
                     if m is not None:
                         defines.append("-D{}".format(m.group(1)))
             _log.debug("Got defines: %s", defines)

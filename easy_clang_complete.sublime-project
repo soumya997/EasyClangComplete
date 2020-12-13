@@ -16,6 +16,7 @@
 	],
 	"settings":
 	{
+		"ecc_clang_binary": "/usr/bin/clang++-6.0",
 		"ecc_flags_sources":
 		[
 			{
@@ -39,6 +40,6 @@
 				"file": ".clang_complete"
 			}
 		],
-		"ecc_use_libclang": true
+		"SublimeLinter.linters.mypy.disable": true
 	}
 }

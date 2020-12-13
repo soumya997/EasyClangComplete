@@ -43,20 +43,14 @@ class PopupErrorVis:
 
         self.err_regions = {}
         if gutter_style == SettingsStorage.GUTTER_COLOR_STYLE:
-            self.gutter_mark_error = PATH_TO_ICON.format(
-                icon="error.png")
-            self.gutter_mark_warning = PATH_TO_ICON.format(
-                icon="warning.png")
+            self.gutter_mark_error = PATH_TO_ICON.format(icon="error.png")
+            self.gutter_mark_warning = PATH_TO_ICON.format(icon="warning.png")
         elif gutter_style == SettingsStorage.GUTTER_MONO_STYLE:
-            self.gutter_mark_error = PATH_TO_ICON.format(
-                icon="error_mono.png")
-            self.gutter_mark_warning = PATH_TO_ICON.format(
-                icon="warning_mono.png")
+            self.gutter_mark_error = PATH_TO_ICON.format(icon="error_mono.png")
+            self.gutter_mark_warning = PATH_TO_ICON.format(icon="warning_mono.png")
         elif gutter_style == SettingsStorage.GUTTER_DOT_STYLE:
-            self.gutter_mark_error = PATH_TO_ICON.format(
-                icon="error_dot.png")
-            self.gutter_mark_warning = PATH_TO_ICON.format(
-                icon="warning_dot.png")
+            self.gutter_mark_error = PATH_TO_ICON.format(icon="error_dot.png")
+            self.gutter_mark_warning = PATH_TO_ICON.format(icon="warning_dot.png")
         else:
             log.error("Unknown option for gutter_style: %s", gutter_style)
             self.gutter_mark_error = ""
@@ -67,14 +61,23 @@ class PopupErrorVis:
         elif mark_style == SettingsStorage.MARK_STYLE_FILL:
             self.draw_flags = 0
         elif mark_style == SettingsStorage.MARK_STYLE_SOLID_UNDERLINE:
-            self.draw_flags = sublime.DRAW_NO_FILL | \
-                sublime.DRAW_NO_OUTLINE | sublime.DRAW_SOLID_UNDERLINE
+            self.draw_flags = (
+                sublime.DRAW_NO_FILL
+                | sublime.DRAW_NO_OUTLINE
+                | sublime.DRAW_SOLID_UNDERLINE
+            )
         elif mark_style == SettingsStorage.MARK_STYLE_STIPPLED_UNDERLINE:
-            self.draw_flags = sublime.DRAW_NO_FILL | \
-                sublime.DRAW_NO_OUTLINE | sublime.DRAW_STIPPLED_UNDERLINE
+            self.draw_flags = (
+                sublime.DRAW_NO_FILL
+                | sublime.DRAW_NO_OUTLINE
+                | sublime.DRAW_STIPPLED_UNDERLINE
+            )
         elif mark_style == SettingsStorage.MARK_STYLE_SQUIGGLY_UNDERLINE:
-            self.draw_flags = sublime.DRAW_NO_FILL | \
-                sublime.DRAW_NO_OUTLINE | sublime.DRAW_SQUIGGLY_UNDERLINE
+            self.draw_flags = (
+                sublime.DRAW_NO_FILL
+                | sublime.DRAW_NO_OUTLINE
+                | sublime.DRAW_SQUIGGLY_UNDERLINE
+            )
         else:
             self.draw_flags = sublime.HIDDEN
 
@@ -118,11 +121,11 @@ class PopupErrorVis:
             error_dict (dict): current error dict {row, col, file, region}
         """
         logging.debug("Adding error %s", error_dict)
-        error_source_file = path.basename(error_dict['file'])
+        error_source_file = path.basename(error_dict["file"])
         if error_source_file == path.basename(view.file_name()):
-            row_col = ZeroIndexedRowCol(error_dict['row'], error_dict['col'])
+            row_col = ZeroIndexedRowCol(error_dict["row"], error_dict["col"])
             point = row_col.as_1d_location(view)
-            error_dict['region'] = view.word(point)
+            error_dict["region"] = view.word(point)
             if row_col.row in self.err_regions[view.buffer_id()]:
                 self.err_regions[view.buffer_id()][row_col.row] += [error_dict]
             else:
@@ -139,7 +142,8 @@ class PopupErrorVis:
             return
         current_error_dict = self.err_regions[view.buffer_id()]
         error_regions, warning_regions = PopupErrorVis._as_region_list(
-            current_error_dict)
+            current_error_dict
+        )
         log.debug("Showing error regions: %s", error_regions)
         log.debug("Showing warning regions: %s", warning_regions)
         view.add_regions(
@@ -147,13 +151,15 @@ class PopupErrorVis:
             regions=error_regions,
             scope=PopupErrorVis._ERROR_SCOPE,
             icon=self.gutter_mark_error,
-            flags=self.draw_flags)
+            flags=self.draw_flags,
+        )
         view.add_regions(
             key=PopupErrorVis._TAG_WARNINGS,
             regions=warning_regions,
             scope=PopupErrorVis._WARNING_SCOPE,
             icon=self.gutter_mark_warning,
-            flags=self.draw_flags)
+            flags=self.draw_flags,
+        )
 
     def erase_regions(self, view):
         """Erase error regions for view.
@@ -214,7 +220,7 @@ class PopupErrorVis:
         error_list = []
         max_severity = 0
         for entry in errors_dicts:
-            error_list.append(entry['error'])
+            error_list.append(entry["error"])
             if LibClangCompilerVariant.SEVERITY_TAG in entry:
                 severity = entry[LibClangCompilerVariant.SEVERITY_TAG]
                 if severity > max_severity:
@@ -239,9 +245,9 @@ class PopupErrorVis:
                 if LibClangCompilerVariant.SEVERITY_TAG in entry:
                     severity = entry[LibClangCompilerVariant.SEVERITY_TAG]
                 if severity < MIN_ERROR_SEVERITY:
-                    warnings.append(entry['region'])
+                    warnings.append(entry["region"])
                 else:
-                    errors.append(entry['region'])
+                    errors.append(entry["region"])
         return errors, warnings
 
     @staticmethod
@@ -249,8 +255,8 @@ class PopupErrorVis:
         """Convert an error dict to markdown string."""
         if len(error_list) > 1:
             # Make it a markdown list.
-            text_to_show = '\n- '.join(error_list)
-            text_to_show = '- ' + text_to_show
+            text_to_show = "\n- ".join(error_list)
+            text_to_show = "- " + text_to_show
         else:
             text_to_show = error_list[0]
         return text_to_show

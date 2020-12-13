@@ -14,13 +14,15 @@ class ModuleReloader:
     MAX_RELOAD_TRIES = 10
 
     @staticmethod
-    def reload_all(ignore_string='singleton'):
+    def reload_all(ignore_string="singleton"):
         """Reload all loaded modules."""
-        prefix = PKG_NAME + '.plugin.'
+        prefix = PKG_NAME + ".plugin."
         # reload all twice to make sure all dependencies are satisfied
         log.debug(
             "Reloading modules that start with '%s' and don't contain '%s'",
-            prefix, ignore_string)
+            prefix,
+            ignore_string,
+        )
         log.debug("Reload all modules first time")
         ModuleReloader.reload_once(prefix, ignore_string)
         log.debug("Reload all modules second time")
@@ -41,6 +43,5 @@ class ModuleReloader:
                 log.fatal("Too many tries to reload and no success. Fail.")
                 return
             try_counter += 1
-            log.error("Received an error: %s on try %s. Try again.",
-                      e, try_counter)
+            log.error("Received an error: %s on try %s. Try again.", e, try_counter)
             ModuleReloader.reload_once(prefix, ignore_string)

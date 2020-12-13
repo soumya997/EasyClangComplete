@@ -16,9 +16,7 @@ class TestRowCol(GuiTestWrapper):
 
     def test_setup_view(self):
         """Test that setup view correctly sets up the view."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.check_view(file_name)
 
     def test_init(self):
@@ -44,16 +42,13 @@ class TestRowCol(GuiTestWrapper):
 
     def test_location(self):
         """Location is valid."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.set_up_view(file_name)
         pos = ZeroIndexedRowCol(4, 2)
         self.assertEquals(pos.row, 4)
         self.assertEquals(pos.col, 2)
         location = pos.as_1d_location(self.view)
-        pos_from_location = ZeroIndexedRowCol.from_1d_location(
-            self.view, location)
+        pos_from_location = ZeroIndexedRowCol.from_1d_location(self.view, location)
         self.assertEquals(pos.row, pos_from_location.row)
         self.assertEquals(pos.col, pos_from_location.col)
 

@@ -31,15 +31,13 @@ class CompilationDb(FlagsSource):
         _cache (dict): Cache of all parsed databases to date. Stored by full
             database path. Needed to avoid reparsing same database.
     """
-    ALL_TAG = 'all'
+
+    ALL_TAG = "all"
 
     _FILE_NAME = "compile_commands.json"
     _LOCK = Lock()
 
-    def __init__(self,
-                 include_prefixes,
-                 header_to_source_map,
-                 lazy_flag_parsing):
+    def __init__(self, include_prefixes, header_to_source_map, lazy_flag_parsing):
         """Initialize a compilation database.
 
         Args:
@@ -89,8 +87,8 @@ class CompilationDb(FlagsSource):
                 # We only need to parse the entry if we have lazy parsing
                 # enabled and we haven't parsed it before.
                 list_of_flags = self._parse_entry(
-                    db[file_path],
-                    path.dirname(current_db_path))
+                    db[file_path], path.dirname(current_db_path)
+                )
                 db[file_path] = list_of_flags  # Store parsed flags.
                 self._cache[current_db_path] = db  # Update db in cache.
                 return list_of_flags
@@ -103,8 +101,7 @@ class CompilationDb(FlagsSource):
         return None
 
     def _get_db_path(self, file_path, search_scope):
-        search_scope = self._update_search_scope_if_needed(search_scope,
-                                                           file_path)
+        search_scope = self._update_search_scope_if_needed(search_scope, file_path)
         current_db_file = File.search(self._FILE_NAME, search_scope)
         if not current_db_file:
             return None
@@ -127,15 +124,15 @@ class CompilationDb(FlagsSource):
 
     def _parse_entry(self, entry, base_path):
         argument_list = []
-        if 'directory' in entry:
-            base_path = path.realpath(entry['directory'])
-        if 'command' in entry:
+        if "directory" in entry:
+            base_path = path.realpath(entry["directory"])
+        if "command" in entry:
             import shlex
             import os
-            argument_list = shlex.split(entry['command'],
-                                        posix=os.name == 'posix')
-        elif 'arguments' in entry:
-            argument_list = entry['arguments']
+
+            argument_list = shlex.split(entry["command"], posix=os.name == "posix")
+        elif "arguments" in entry:
+            argument_list = entry["arguments"]
         else:
             # TODO(igor): maybe show message to the user instead here
             log.critical("Compilation database has unsupported format")
@@ -152,6 +149,7 @@ class CompilationDb(FlagsSource):
             unique entries for CompilationDb.ALL_TAG entry.
         """
         import yaml
+
         data = None
         with open(current_db_path) as data_file:
             # We load our json file with yaml to allow for trailing commas.
@@ -162,9 +160,9 @@ class CompilationDb(FlagsSource):
         base_path = path.dirname(current_db_path)
         unique_list_of_flags = UniqueList()
         for entry in data:
-            if 'directory' in entry:
-                base_path = entry['directory']
-            file_path = File.canonical_path(entry['file'], base_path)
+            if "directory" in entry:
+                base_path = entry["directory"]
+            file_path = File.canonical_path(entry["file"], base_path)
             if self._lazy_flag_parsing:
                 parsed_db[file_path] = entry
             else:
@@ -180,12 +178,13 @@ class CompilationDb(FlagsSource):
 
     def _find_related_sources(self, file_path, db):
         if not file_path:
-            log.debug("[db]:[header-to-source]: skip retrieving related "
-                      "files for invalid file_path input")
+            log.debug(
+                "[db]:[header-to-source]: skip retrieving related "
+                "files for invalid file_path input"
+            )
             return
         templates = self._get_templates()
-        log.debug("[db]:[header-to-source]: using lookup table:" +
-                  str(templates))
+        log.debug("[db]:[header-to-source]: using lookup table:" + str(templates))
 
         dirname = path.dirname(file_path)
         basename = path.basename(file_path)
@@ -196,11 +195,7 @@ class CompilationDb(FlagsSource):
             # Construct a globbing pattern by taking the dirname of the input
             # file and join it with the template part which may contain
             # some pre-defined placeholders:
-            pattern = template.format(
-                basename=basename,
-                stamp=stamp,
-                ext=ext
-            )
+            pattern = template.format(basename=basename, stamp=stamp, ext=ext)
             pattern = path.join(dirname, pattern)
             # Normalize the path, as templates might contain references
             # to parent directories:

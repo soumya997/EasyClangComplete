@@ -25,6 +25,7 @@ class CppProperties(FlagsSource):
             path. Needed to avoid reparsing the file multiple times.
         path_for_file (dict): A path to a database for every source file path.
     """
+
     _FILE_NAME = "CppProperties.json"
 
     def __init__(self, include_prefixes):
@@ -48,8 +49,7 @@ class CppProperties(FlagsSource):
             str[]: Return a list of flags in this CppProperties.json file
         """
         # prepare search scope
-        search_scope = self._update_search_scope_if_needed(
-            search_scope, file_path)
+        search_scope = self._update_search_scope_if_needed(search_scope, file_path)
         # check if we have a hashed version
         log.debug("[CppProperties]:[get]: for file %s", file_path)
         cached_flags_path = self._get_cached_from(file_path)
@@ -67,7 +67,7 @@ class CppProperties(FlagsSource):
         if parsed_before:
             log.debug("[CppProperties]: found cached CppProperties.json")
             cached_flags_path = flags_file_path
-        flags_file_path_same = (flags_file_path == cached_flags_path)
+        flags_file_path_same = flags_file_path == cached_flags_path
         flags_file_same = File.is_unchanged(cached_flags_path)
         if flags_file_path_same and flags_file_same:
             log.debug("[CppProperties]:[unchanged]: load cached")
@@ -92,8 +92,9 @@ class CppProperties(FlagsSource):
         Returns:
             str[]: List of flags from file.
         """
+
         def expand_env_vars(paths):
-            expandable_path = re.sub(r'\$\{env\.', '${', paths)
+            expandable_path = re.sub(r"\$\{env\.", "${", paths)
             return os.path.expandvars(expandable_path)
 
         def parse_includes_from_json(content):
@@ -114,15 +115,17 @@ class CppProperties(FlagsSource):
             return defines
 
         if not os.path.exists(file.full_path):
-            log.error("File '%s' does not exist yet. No flags present.",
-                      CppProperties._FILE_NAME)
+            log.error(
+                "File '%s' does not exist yet. No flags present.",
+                CppProperties._FILE_NAME,
+            )
             return []
         if not file.loaded():
-            log.error("cannot get flags from %s. No file.",
-                      CppProperties._FILE_NAME)
+            log.error("cannot get flags from %s. No file.", CppProperties._FILE_NAME)
             return []
 
         import json
+
         flags = []
         with open(file.full_path) as f:
             content = json.load(f)

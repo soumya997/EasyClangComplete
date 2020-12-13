@@ -5,17 +5,15 @@ import logging
 log = logging.getLogger("ECC")
 
 
-def get_all_headers(folders,
-                    prefix,
-                    force_unix_includes,
-                    completion_request):
+def get_all_headers(folders, prefix, force_unix_includes, completion_request):
     """Parse all the folders and return all headers."""
+
     def get_match(filename, root, base_folder):
         """Get formated match as a relative path to the base_folder."""
         match = path.join(root, filename)
         match = path.relpath(match, base_folder)
         if force_unix_includes:
-            match = match.replace(path.sep, '/')
+            match = match.replace(path.sep, "/")
         return "{}\t{}".format(match, base_folder), match
 
     def is_root_duplicate(root, query_folder, folders, start_idx):
@@ -40,6 +38,7 @@ def get_all_headers(folders,
 
     import os
     import fnmatch
+
     matches = []
     folders.sort(key=len)
     if force_unix_includes:
@@ -51,10 +50,10 @@ def get_all_headers(folders,
                 continue
             for filename in filenames:
                 match = None
-                if not fnmatch.fnmatch(filename, '*.*'):
+                if not fnmatch.fnmatch(filename, "*.*"):
                     # This file has no extension. It fits for us.
                     completion, match = get_match(filename, root, folder)
-                if fnmatch.fnmatch(filename, '*.h*'):
+                if fnmatch.fnmatch(filename, "*.h*"):
                     # This file in an include file.
                     completion, match = get_match(filename, root, folder)
                 if not match:

@@ -22,6 +22,7 @@ class Wildcards:
         PROJECT_NAME (str): a wildcard to be replaced by the project name
         PROJECT_PATH (str): a wildcard to be replaced by the project path
     """
+
     PROJECT_PATH = "project_base_path"
     PROJECT_NAME = "project_name"
     CLANG_VERSION = "clang_version"
@@ -37,20 +38,21 @@ class SettingsStorage:
         NAMES_ENUM (str[]): all supported settings names
         PREFIXES (str[]): setting prefixes supported by this plugin
     """
-    FLAG_SOURCES = ["CMakeLists.txt",
-                    "Makefile",
-                    "compile_commands.json",
-                    "CppProperties.json",
-                    "c_cpp_properties.json",
-                    ".clang_complete"]
+
+    FLAG_SOURCES = [
+        "CMakeLists.txt",
+        "Makefile",
+        "compile_commands.json",
+        "CppProperties.json",
+        "c_cpp_properties.json",
+        ".clang_complete",
+    ]
 
     SEARCH_IN_TAG = "search_in"
     PREFIX_PATHS_TAG = "prefix_paths"
     FLAGS_TAG = "flags"
     FILE_TAG = "file"
-    FLAG_SOURCES_ENTRIES_WITH_PATHS = [SEARCH_IN_TAG,
-                                       PREFIX_PATHS_TAG,
-                                       FLAGS_TAG]
+    FLAG_SOURCES_ENTRIES_WITH_PATHS = [SEARCH_IN_TAG, PREFIX_PATHS_TAG, FLAGS_TAG]
 
     PREFIXES = ["ecc_", "easy_clang_complete_"]
 
@@ -65,10 +67,12 @@ class SettingsStorage:
     GUTTER_DOT_STYLE = "dot"
     NONE_STYLE = "none"
 
-    GUTTER_STYLES = [GUTTER_COLOR_STYLE,
-                     GUTTER_MONO_STYLE,
-                     GUTTER_DOT_STYLE,
-                     NONE_STYLE]
+    GUTTER_STYLES = [
+        GUTTER_COLOR_STYLE,
+        GUTTER_MONO_STYLE,
+        GUTTER_DOT_STYLE,
+        NONE_STYLE,
+    ]
 
     MARK_STYLE_OUTLINE = "outline"
     MARK_STYLE_FILL = "fill"
@@ -77,12 +81,14 @@ class SettingsStorage:
     MARK_STYLE_SQUIGGLY_UNDERLINE = "squiggly_underline"
     MARK_STYLE_NONE = "none"
 
-    LINTER_MARK_STYLES = [MARK_STYLE_OUTLINE,
-                          MARK_STYLE_FILL,
-                          MARK_STYLE_SOLID_UNDERLINE,
-                          MARK_STYLE_STIPPLED_UNDERLINE,
-                          MARK_STYLE_SQUIGGLY_UNDERLINE,
-                          MARK_STYLE_NONE]
+    LINTER_MARK_STYLES = [
+        MARK_STYLE_OUTLINE,
+        MARK_STYLE_FILL,
+        MARK_STYLE_SOLID_UNDERLINE,
+        MARK_STYLE_STIPPLED_UNDERLINE,
+        MARK_STYLE_SQUIGGLY_UNDERLINE,
+        MARK_STYLE_NONE,
+    ]
 
     # refer to Preferences.sublime-settings for usage explanation
     NAMES_ENUM = [
@@ -126,15 +132,14 @@ class SettingsStorage:
             settings_handle (sublime.Settings): handle to sublime settings
         """
         log.debug("creating new settings storage object")
-        self.clang_version = ''
-        self.libclang_path = ''
-        self.clang_binary = ''
-        self.cmake_binary = ''
-        self.project_folder = ''
-        self.project_name = ''
+        self.clang_version = ""
+        self.libclang_path = ""
+        self.clang_binary = ""
+        self.cmake_binary = ""
+        self.project_folder = ""
+        self.project_name = ""
         self._wildcard_values = {}
-        self.__load_vars_from_settings(settings_handle,
-                                       project_specific=False)
+        self.__load_vars_from_settings(settings_handle, project_specific=False)
 
     def update_from_view(self, view, project_specific=True):
         """Update from view using view-specific settings.
@@ -147,8 +152,9 @@ class SettingsStorage:
             if not SublBridge.is_valid_view(view):
                 log.error("no view to populate common flags from")
                 return
-            self.__load_vars_from_settings(view.settings(),
-                                           project_specific=project_specific)
+            self.__load_vars_from_settings(
+                view.settings(), project_specific=project_specific
+            )
             # Initialize wildcard values with view.
             self.__update_wildcard_values(view)
             # Replace wildcards in various paths.
@@ -160,12 +166,11 @@ class SettingsStorage:
                 log.critical("Cannot expand ignore_flags")
             if not self.__expand_setting(self.header_to_source_mapping):
                 log.critical("Cannot expand header_to_source_mapping")
-            self.libclang_path = self.__replace_wildcard_if_needed(
-                self.libclang_path)[0]
-            self.clang_binary = self.__replace_wildcard_if_needed(
-                self.clang_binary)[0]
-            self.cmake_binary = self.__replace_wildcard_if_needed(
-                self.cmake_binary)[0]
+            self.libclang_path = self.__replace_wildcard_if_needed(self.libclang_path)[
+                0
+            ]
+            self.clang_binary = self.__replace_wildcard_if_needed(self.clang_binary)[0]
+            self.cmake_binary = self.__replace_wildcard_if_needed(self.cmake_binary)[0]
         except AttributeError as e:
             log.error("view became None. Do not continue.")
             log.error("original error: %s", e)
@@ -183,10 +188,10 @@ class SettingsStorage:
             bool: True if needs reparsing, False otherwise
 
         """
-        if 'progress_style' in self.__dict__:
-            log.debug('settings complete')
+        if "progress_style" in self.__dict__:
+            log.debug("settings complete")
             return False
-        log.debug('settings incomplete and will be reloaded a bit later')
+        log.debug("settings incomplete and will be reloaded a bit later")
         return True
 
     def is_valid(self):
@@ -199,7 +204,7 @@ class SettingsStorage:
         """
         error_msg = ""
         for key, value in self.__dict__.items():
-            if key.startswith('__') or callable(key):
+            if key.startswith("__") or callable(key):
                 continue
             if value is None:
                 error_msg = "No value for setting '{}' found!".format(key)
@@ -207,15 +212,18 @@ class SettingsStorage:
 
         if self.progress_style not in SettingsStorage.PROGRESS_STYLES:
             error_msg = "Progress style '{}' is not one of {}".format(
-                self.progress_style, SettingsStorage.PROGRESS_STYLES)
+                self.progress_style, SettingsStorage.PROGRESS_STYLES
+            )
             return False, error_msg
         if self.gutter_style not in SettingsStorage.GUTTER_STYLES:
             error_msg = "Gutter style '{}' is not one of {}".format(
-                self.gutter_style, SettingsStorage.GUTTER_STYLES)
+                self.gutter_style, SettingsStorage.GUTTER_STYLES
+            )
             return False, error_msg
         if self.linter_mark_style not in SettingsStorage.LINTER_MARK_STYLES:
             error_msg = "Linter mark style '{}' is not one of {}".format(
-                self.linter_mark_style, SettingsStorage.LINTER_MARK_STYLES)
+                self.linter_mark_style, SettingsStorage.LINTER_MARK_STYLES
+            )
             return False, error_msg
         flags_sources_valid, error_msg = self.__flag_sources_are_valid()
         if not flags_sources_valid:
@@ -230,14 +238,16 @@ class SettingsStorage:
         for source_dict in self.flags_sources:
             if SettingsStorage.FILE_TAG not in source_dict:
                 error_msg = "No '%s' setting in a flags source '{}'".format(
-                    SettingsStorage.FILE_TAG,
-                    source_dict)
+                    SettingsStorage.FILE_TAG, source_dict
+                )
                 return False, error_msg
-            if source_dict[SettingsStorage.FILE_TAG] not in \
-                    SettingsStorage.FLAG_SOURCES:
+            if (
+                source_dict[SettingsStorage.FILE_TAG]
+                not in SettingsStorage.FLAG_SOURCES
+            ):
                 error_msg = "flag source '{}' is not one of {}".format(
-                    source_dict[SettingsStorage.FILE_TAG],
-                    SettingsStorage.FLAG_SOURCES)
+                    source_dict[SettingsStorage.FILE_TAG], SettingsStorage.FLAG_SOURCES
+                )
                 return False, error_msg
         return True, None
 
@@ -245,16 +255,17 @@ class SettingsStorage:
         """Check that language tags are valid."""
         for lang_tag in SublBridge.LANG_TAGS:
             if lang_tag not in self.lang_flags.keys():
-                error_msg = "lang '{}' is not in {}".format(
-                    lang_tag, self.lang_flags)
+                error_msg = "lang '{}' is not in {}".format(lang_tag, self.lang_flags)
                 return False, error_msg
             if lang_tag not in self.valid_lang_syntaxes:
                 error_msg = "No '{}' in syntaxes '{}'".format(
-                    lang_tag, self.valid_lang_syntaxes)
+                    lang_tag, self.valid_lang_syntaxes
+                )
                 return False, error_msg
             if lang_tag not in self.target_compilers:
                 error_msg = "No '{}' in syntaxes '{}'".format(
-                    lang_tag, self.target_compilers)
+                    lang_tag, self.target_compilers
+                )
                 return False, error_msg
         return True, None
 
@@ -296,27 +307,27 @@ class SettingsStorage:
 
     def __populate_flags_source_paths(self):
         """Populate variables inside flags sources."""
+
         def expand_paths_in_flags_if_needed(flags):
             """Expand paths in flags if they are present."""
             from os import path
+
             new_flags = []
             for flag in flags:
-                if '=' not in flag:
+                if "=" not in flag:
                     new_flags.append(flag)
                     continue
-                split_flag = flag.split('=')
+                split_flag = flag.split("=")
                 prefix = split_flag[0].strip()
                 value = split_flag[1].strip()
-                expanded_values = self.__replace_wildcard_if_needed(
-                    value)
+                expanded_values = self.__replace_wildcard_if_needed(value)
                 if not expanded_values:
                     continue
-                joined_values = ';'.join(expanded_values)
+                joined_values = ";".join(expanded_values)
                 if path.isabs(expanded_values[0]):
-                    new_flags.append(
-                        prefix + '="' + joined_values + '"')
+                    new_flags.append(prefix + '="' + joined_values + '"')
                 else:
-                    new_flags.append(prefix + '=' + joined_values)
+                    new_flags.append(prefix + "=" + joined_values)
             return new_flags
 
         if not self.flags_sources:
@@ -330,20 +341,26 @@ class SettingsStorage:
                     continue
                 if option == SettingsStorage.FLAGS_TAG:
                     source_dict[option] = expand_paths_in_flags_if_needed(
-                        source_dict[option])
+                        source_dict[option]
+                    )
                 else:
                     source_dict[option] = self.__replace_wildcard_if_needed(
-                        source_dict[option])
+                        source_dict[option]
+                    )
 
     def __populate_common_flags(self):
         """Populate the variables inside common_flags with real values."""
         log.debug("Populating common_flags with current variables.")
         new_common_flags = []
         for raw_flag_str in self.common_flags:
-            new_common_flags += Flag.Builder()\
-                .from_unparsed_string(raw_flag_str).build_with_expansion(
+            new_common_flags += (
+                Flag.Builder()
+                .from_unparsed_string(raw_flag_str)
+                .build_with_expansion(
                     wildcard_values=self._wildcard_values,
-                    current_folder=self.project_folder)
+                    current_folder=self.project_folder,
+                )
+            )
         self.common_flags = new_common_flags
 
     def __expand_setting(self, setting):
@@ -351,8 +368,8 @@ class SettingsStorage:
         if not setting:
             return False
         self.ignore_list = self.__replace_wildcard_if_needed(
-            query=self.ignore_list,
-            expand_globbing=False)
+            query=self.ignore_list, expand_globbing=False
+        )
         return True
 
     def __replace_wildcard_if_needed(self, query, expand_globbing=True):
@@ -363,9 +380,11 @@ class SettingsStorage:
             return None
         result = []
         for query_path in query:
-            result += File.expand_all(input_path=query_path,
-                                      wildcard_values=self._wildcard_values,
-                                      expand_globbing=expand_globbing)
+            result += File.expand_all(
+                input_path=query_path,
+                wildcard_values=self._wildcard_values,
+                expand_globbing=expand_globbing,
+            )
         return result
 
     def __update_wildcard_values(self, view):
@@ -373,16 +392,18 @@ class SettingsStorage:
         variables = view.window().extract_variables()
         self._wildcard_values.update(variables)
 
-        self._wildcard_values[Wildcards.PROJECT_PATH] = \
-            variables.get("folder", "").replace("\\", "\\\\")
+        self._wildcard_values[Wildcards.PROJECT_PATH] = variables.get(
+            "folder", ""
+        ).replace("\\", "\\\\")
 
-        self._wildcard_values[Wildcards.PROJECT_NAME] = \
-            variables.get("project_base_name", "")
+        self._wildcard_values[Wildcards.PROJECT_NAME] = variables.get(
+            "project_base_name", ""
+        )
 
         # We need to expand clang binary path *before* we set all wildcards.
         self.clang_binary = self.__replace_wildcard_if_needed(
-            query=self.clang_binary,
-            expand_globbing=False)[0]
+            query=self.clang_binary, expand_globbing=False
+        )[0]
         # get clang version string
         version_str = ClangUtils.get_clang_version_str(self.clang_binary)
         self._wildcard_values[Wildcards.CLANG_VERSION] = version_str

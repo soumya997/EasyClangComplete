@@ -1,15 +1,13 @@
 """Defines all search scopes used in this project."""
 from os import path
 
-ROOT_PATH = path.abspath('/')
+ROOT_PATH = path.abspath("/")
 
 
 class TreeSearchScope:
     """Encapsulation of a search scope to search up the tree."""
 
-    def __init__(self,
-                 from_folder=ROOT_PATH,
-                 to_folder=ROOT_PATH):
+    def __init__(self, from_folder=ROOT_PATH, to_folder=ROOT_PATH):
         """Initialize the search scope."""
         self.from_folder = from_folder
         self.to_folder = to_folder
@@ -58,8 +56,9 @@ class TreeSearchScope:
 
     def __repr__(self):
         """Return search scope as a printable string."""
-        return 'SearchScope: from_folder: {}, to_folder: {}'.format(
-            self._from_folder, self._to_folder)
+        return "SearchScope: from_folder: {}, to_folder: {}".format(
+            self._from_folder, self._to_folder
+        )
 
 
 class ListSearchScope:
@@ -95,4 +94,4 @@ class ListSearchScope:
 
     def __repr__(self):
         """Return search scope as a printable string."""
-        return 'SearchScope: folders: {}'.format(self._folders)
+        return "SearchScope: folders: {}".format(self._folders)

@@ -1,7 +1,7 @@
 """Represent different ways to work with row and column in views."""
 
 
-class ZeroIndexedRowCol():
+class ZeroIndexedRowCol:
     """A cursor position as 0-indexed row and column."""
 
     def __init__(self, row, col):
@@ -26,8 +26,9 @@ class ZeroIndexedRowCol():
     @staticmethod
     def from_one_indexed(one_indexed_row_col):
         """Convert 1-indexed row column into the 0-indexed representation."""
-        return ZeroIndexedRowCol(one_indexed_row_col._row - 1,
-                                 one_indexed_row_col._col - 1)
+        return ZeroIndexedRowCol(
+            one_indexed_row_col._row - 1, one_indexed_row_col._col - 1
+        )
 
     @staticmethod
     def from_1d_location(view, pos):
@@ -53,7 +54,7 @@ class ZeroIndexedRowCol():
         return (self._row, self._col)
 
 
-class OneIndexedRowCol():
+class OneIndexedRowCol:
     """Stores a cursor position."""
 
     def __init__(self, row, col):
@@ -64,8 +65,9 @@ class OneIndexedRowCol():
     @staticmethod
     def from_zero_indexed(zero_indexed_row_col):
         """Convert 0-indexed row column into the 1-indexed representation."""
-        return ZeroIndexedRowCol(zero_indexed_row_col._row + 1,
-                                 zero_indexed_row_col._col + 1)
+        return ZeroIndexedRowCol(
+            zero_indexed_row_col._row + 1, zero_indexed_row_col._col + 1
+        )
 
     @property
     def row(self):

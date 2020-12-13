@@ -21,12 +21,11 @@ class MacroParser(object):
             in a macro with parenthesis, continue parsing into the next line
             to find it and create a proper args string.
         """
-        self._args_string = ''
+        self._args_string = ""
         self._name = name
-        self._body = ''
+        self._body = ""
         if location and location.file and location.file.name:
-            with open(location.file.name, 'r', encoding='utf-8',
-                      errors='ignore') as f:
+            with open(location.file.name, "r", encoding="utf-8", errors="ignore") as f:
                 macro_file_lines = f.readlines()
                 self._parse_macro_file_lines(macro_file_lines, location.line)
 
@@ -40,11 +39,11 @@ class MacroParser(object):
         """
         macro_line = macro_file_lines[macro_line_number - 1].strip()
         # strip leading '#<whitespace>define<whitespace><macro name>'
-        macro_line = macro_line.lstrip('#').lstrip().lstrip('define')
+        macro_line = macro_line.lstrip("#").lstrip().lstrip("define")
         macro_line = macro_line.lstrip().lstrip(self._name)
         # macro that looks like a function, possibly with args
-        if macro_line.startswith('('):
-            end_args_index = macro_line.find(')')
+        if macro_line.startswith("("):
+            end_args_index = macro_line.find(")")
             # There should always be a closing parenthesis, but check
             # just in case a) the code is malformed or b) the macro
             # definition is continued on the next line so we can't
@@ -53,10 +52,10 @@ class MacroParser(object):
                 # If extra spaces, e.g. "#define MACRO( x ,  y  , z )",
                 # then flatten down to just "(x, y, z)"
                 args_str = macro_line[1:end_args_index]
-                args_str = ''.join(args_str.split())
-                args_str = args_str.replace(',', ', ')
-                self._args_string = '(' + args_str + ')'
-                macro_line = macro_line[end_args_index + 1:]
+                args_str = "".join(args_str.split())
+                args_str = args_str.replace(",", ", ")
+                self._args_string = "(" + args_str + ")"
+                macro_line = macro_line[end_args_index + 1 :]
 
         self._body = macro_line.strip()
         while self._body.endswith("\\"):

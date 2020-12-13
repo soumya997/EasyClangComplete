@@ -3,8 +3,7 @@
 import logging
 import sublime
 
-from EasyClangComplete.plugin.error_vis.popup_error_vis \
-    import MIN_ERROR_SEVERITY
+from EasyClangComplete.plugin.error_vis.popup_error_vis import MIN_ERROR_SEVERITY
 
 log = logging.getLogger("ECC")
 
@@ -28,15 +27,15 @@ class QuickPanelHandler(object):
         """Present errors as list of lists."""
         contents = []
         for error_dict in self.errors:
-            error_type = 'ERROR'
-            if error_dict['severity'] < MIN_ERROR_SEVERITY:
-                error_type = 'WARNING'
+            error_type = "ERROR"
+            if error_dict["severity"] < MIN_ERROR_SEVERITY:
+                error_type = "WARNING"
             contents.append(
                 [
-                    ENTRY_TEMPLATE.format(type=error_type,
-                                          error=error_dict['error']),
-                    error_dict['file']
-                ])
+                    ENTRY_TEMPLATE.format(type=error_type, error=error_dict["error"]),
+                    error_dict["file"],
+                ]
+            )
         return contents
 
     def on_highlighted(self, idx):
@@ -49,11 +48,12 @@ class QuickPanelHandler(object):
         log.debug("Picked idx: %s", idx)
         if idx < 0 or idx >= len(self.errors):
             return None
-        return self.view.window().open_file(self.__get_formatted_location(idx),
-                                            sublime.ENCODED_POSITION)
+        return self.view.window().open_file(
+            self.__get_formatted_location(idx), sublime.ENCODED_POSITION
+        )
 
     def __get_formatted_location(self, idx):
         picked_entry = self.errors[idx]
-        return "{file}:{row}:{col}".format(file=picked_entry['file'],
-                                           row=picked_entry['row'],
-                                           col=picked_entry['col'])
+        return "{file}:{row}:{col}".format(
+            file=picked_entry["file"], row=picked_entry["row"], col=picked_entry["col"]
+        )

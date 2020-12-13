@@ -15,7 +15,7 @@ def run_me(succeed):
     return succeed
 
 
-class TestContainer():
+class TestContainer:
     """A test container to store results of the operation."""
 
     def __init__(self, cancelled, result):
@@ -38,10 +38,12 @@ class test_thread_pool(TestCase):
     def test_single_job(self):
         """Test single job."""
         test_container = TestContainer(False, False)
-        job = ThreadJob(name="test_job",
-                        callback=test_container.on_job_done,
-                        function=run_me,
-                        args=[True])
+        job = ThreadJob(
+            name="test_job",
+            callback=test_container.on_job_done,
+            function=run_me,
+            args=[True],
+        )
         pool = ThreadPool()
         pool.new_job(job)
         time.sleep(0.2)
@@ -50,10 +52,12 @@ class test_thread_pool(TestCase):
     def test_fail_job(self):
         """Test fail job."""
         test_container = TestContainer(False, False)
-        job = ThreadJob(name="test_job",
-                        callback=test_container.on_job_done,
-                        function=run_me,
-                        args=[False])
+        job = ThreadJob(
+            name="test_job",
+            callback=test_container.on_job_done,
+            function=run_me,
+            args=[False],
+        )
         pool = ThreadPool()
         pool.new_job(job)
         time.sleep(0.2)
@@ -65,17 +69,21 @@ class test_thread_pool(TestCase):
         The first job should be overridden by the next one.
         """
         test_container = TestContainer(False, False)
-        job_good = ThreadJob(name="test_job",
-                             function=run_me,
-                             callback=test_container.on_job_done,
-                             args=[True])
-        job_bad = ThreadJob(name="test_job",
-                            function=run_me,
-                            callback=test_container.on_job_done,
-                            args=[False])
+        job_good = ThreadJob(
+            name="test_job",
+            function=run_me,
+            callback=test_container.on_job_done,
+            args=[True],
+        )
+        job_bad = ThreadJob(
+            name="test_job",
+            function=run_me,
+            callback=test_container.on_job_done,
+            args=[False],
+        )
         pool = ThreadPool()
         pool.new_job(job_good)  # Initial.
-        pool.new_job(job_bad)   # Cannot override as prev is running.
+        pool.new_job(job_bad)  # Cannot override as prev is running.
         pool.new_job(job_good)  # Overrides the previous one.
         time.sleep(0.3)
         self.assertTrue(test_container.result)
@@ -84,19 +92,23 @@ class test_thread_pool(TestCase):
     def test_no_override_job(self):
         """Test adding the same job while running another instance of it."""
         test_container = TestContainer(False, False)
-        job_good = ThreadJob(name="test_job",
-                             function=run_me,
-                             callback=test_container.on_job_done,
-                             args=[True])
-        job_bad = ThreadJob(name="test_job",
-                            function=run_me,
-                            callback=test_container.on_job_done,
-                            args=[False])
+        job_good = ThreadJob(
+            name="test_job",
+            function=run_me,
+            callback=test_container.on_job_done,
+            args=[True],
+        )
+        job_bad = ThreadJob(
+            name="test_job",
+            function=run_me,
+            callback=test_container.on_job_done,
+            args=[False],
+        )
         pool = ThreadPool()
         pool.new_job(job_good)  # Initial.
         time.sleep(0.05)
         self.assertFalse(test_container.result)
-        pool.new_job(job_bad)   # Cannot override as prev is running.
+        pool.new_job(job_bad)  # Cannot override as prev is running.
         time.sleep(0.1)
         self.assertTrue(test_container.result)
         self.assertFalse(test_container.cancelled)

@@ -6,6 +6,7 @@ from EasyClangComplete.plugin.utils.unique_list import UniqueList
 
 class test_unique_list(TestCase):
     """Test unique list."""
+
     def test_init(self):
         """Test initialization."""
         unique_list = UniqueList()

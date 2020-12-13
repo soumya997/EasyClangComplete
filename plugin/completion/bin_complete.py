@@ -57,6 +57,7 @@ class Completer(BaseCompleter):
         TYPE_TAG (str): type name tag for convenience
 
     """
+
     name = "bin"
     clang_binary = None
 
@@ -65,18 +66,20 @@ class Completer(BaseCompleter):
     PARAM_CHARS = r"\w\s\*\&\<\>:,\(\)\$\{\}!_\."
     TYPE_CHARS = r"\w\s\*\&\<\>:,\(\)\$\{\}\[\]!"
     group_params = "(?P<{param_tag}>[{param_chars}]+)".format(
-        param_chars=PARAM_CHARS,
-        param_tag=PARAM_TAG)
+        param_chars=PARAM_CHARS, param_tag=PARAM_TAG
+    )
     group_types = "(?P<{type_tag}>[{type_chars}]+)".format(
-        type_tag=TYPE_TAG,
-        type_chars=TYPE_CHARS)
+        type_tag=TYPE_TAG, type_chars=TYPE_CHARS
+    )
 
     compl_str_mask = "{complete_flag}={file}:{row}:{col}"
 
     compl_regex = re.compile(r"COMPLETION:\s(?P<name>.*)\s:\s(?P<content>.*)")
     compl_content_regex = re.compile(
         r"\<#{group_params}#\>|\[#{group_types}#\]".format(
-            group_params=group_params, group_types=group_types))
+            group_params=group_params, group_types=group_types
+        )
+    )
 
     opts_regex = re.compile("{#|#}")
 
@@ -92,7 +95,7 @@ class Completer(BaseCompleter):
 
         # Create compiler options of specific variant of the compiler.
         filename = path.splitext(path.basename(self.clang_binary))[0]
-        if filename.startswith('clang-cl'):
+        if filename.startswith("clang-cl"):
             self.compiler_variant = ClangClCompilerVariant()
         else:
             self.compiler_variant = ClangCompilerVariant()
@@ -107,13 +110,14 @@ class Completer(BaseCompleter):
         view = completion_request.get_view()
         start = time.time()
         output_text = self.run_clang_command(
-            view, "complete", completion_request.get_trigger_position())
+            view, "complete", completion_request.get_trigger_position()
+        )
         raw_complete = output_text.splitlines()
         end = time.time()
         log.debug("code complete done in %s seconds", end - start)
 
         completions = Completer._parse_completions(raw_complete)
-        log.debug('completions: %s' % completions)
+        log.debug("completions: %s" % completions)
         return (completion_request, completions)
 
     def info(self, tooltip_request, settings):
@@ -174,7 +178,7 @@ class Completer(BaseCompleter):
 
         tempdir = File.get_temp_dir(Tools.get_unique_str(view.file_name()))
         temp_file_name = path.join(tempdir, path.basename(view.file_name()))
-        with open(temp_file_name, "w", encoding='utf-8') as tmp_file:
+        with open(temp_file_name, "w", encoding="utf-8") as tmp_file:
             tmp_file.write(file_body)
 
         flags = self.clang_flags
@@ -185,12 +189,14 @@ class Completer(BaseCompleter):
         elif task_type == "complete":
             # we construct command for complete task
             file_row_col = OneIndexedRowCol.from_zero_indexed(
-                ZeroIndexedRowCol.from_1d_location(view, location))
+                ZeroIndexedRowCol.from_1d_location(view, location)
+            )
             complete_at_str = Completer.compl_str_mask.format(
                 complete_flag="-code-completion-at",
                 file=temp_file_name,
                 row=file_row_col.row,
-                col=file_row_col.col)
+                col=file_row_col.col,
+            )
             flags += ["-Xclang"] + [complete_at_str]
         else:
             log.critical(" unknown type of cmd command wanted.")
@@ -198,8 +204,9 @@ class Completer(BaseCompleter):
         # construct cmd from building parts
         complete_cmd = [self.clang_binary] + flags + [temp_file_name]
         # now run this command
-        log.debug("clang command: \n%s",
-                  " ".join(["'" + s + "'" for s in complete_cmd]))
+        log.debug(
+            "clang command: \n%s", " ".join(["'" + s + "'" for s in complete_cmd])
+        )
         return Tools.run_command(complete_cmd)
 
     @staticmethod
@@ -212,6 +219,7 @@ class Completer(BaseCompleter):
         Returns:
             list: updated completions
         """
+
         class Parser:
             """Help class to parse completions with regex.
 
@@ -237,9 +245,9 @@ class Completer(BaseCompleter):
                 if dict_match[Completer.PARAM_TAG]:
                     self.place_holders += 1
                     return "${{{count}:{text}}}".format(
-                        count=self.place_holders,
-                        text=dict_match[Completer.PARAM_TAG])
-                return ''
+                        count=self.place_holders, text=dict_match[Completer.PARAM_TAG]
+                    )
+                return ""
 
             @staticmethod
             def make_pretty(match):
@@ -257,8 +265,8 @@ class Completer(BaseCompleter):
                 if dict_match[Completer.PARAM_TAG]:
                     return dict_match[Completer.PARAM_TAG]
                 if dict_match[Completer.TYPE_TAG]:
-                    return dict_match[Completer.TYPE_TAG] + ' '
-                return ''
+                    return dict_match[Completer.TYPE_TAG] + " "
+                return ""
 
         completions = []
         for completion in complete_results:
@@ -266,22 +274,27 @@ class Completer(BaseCompleter):
             if not pos_search:
                 log.debug(
                     " completion '%s' did not match pattern '%s'",
-                    completion, Completer.compl_regex.pattern)
+                    completion,
+                    Completer.compl_regex.pattern,
+                )
                 continue
             comp_dict = pos_search.groupdict()
             # log.debug("completions parsed: %s", comp_dict)
-            trigger = comp_dict['name']
+            trigger = comp_dict["name"]
             parser = Parser()
             # remove optional parameters triggers
-            comp_dict['content'] = re.sub(
-                Completer.opts_regex, '', comp_dict['content'])
+            comp_dict["content"] = re.sub(
+                Completer.opts_regex, "", comp_dict["content"]
+            )
             # tokenize parameters
-            contents = re.sub(Completer.compl_content_regex,
-                              parser.tokenize_params,
-                              comp_dict['content'])
+            contents = re.sub(
+                Completer.compl_content_regex,
+                parser.tokenize_params,
+                comp_dict["content"],
+            )
             # make the hint look pretty
-            hint = re.sub(Completer.compl_content_regex,
-                          Parser.make_pretty,
-                          comp_dict['content'])
+            hint = re.sub(
+                Completer.compl_content_regex, Parser.make_pretty, comp_dict["content"]
+            )
             completions.append([trigger + "\t" + hint, contents])
         return completions

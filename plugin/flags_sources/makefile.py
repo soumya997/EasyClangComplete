@@ -23,6 +23,7 @@ class Makefile(FlagsSource):
         cache (dict): Cache of all parsed files to date. Stored by full file
             path. Needed to avoid reparsing the file multiple times.
     """
+
     _FILE_NAME = "Makefile"
 
     def __init__(self, include_prefixes):
@@ -45,8 +46,7 @@ class Makefile(FlagsSource):
         Returns:
             str[]: Return a list of flags in this Makefile
         """
-        search_scope = self._update_search_scope_if_needed(
-            search_scope, file_path)
+        search_scope = self._update_search_scope_if_needed(search_scope, file_path)
         log.debug("[Makefile]:[get]: for file %s", file_path)
         makefile = File.search(self._FILE_NAME, search_scope)
         if not makefile:
@@ -89,8 +89,14 @@ class Makefile(FlagsSource):
             return []
 
         cmd = [
-            "make", "-s", "-C", file.folder,
-            "-f", self._FILE_NAME, "-f", "-",
+            "make",
+            "-s",
+            "-C",
+            file.folder,
+            "-f",
+            self._FILE_NAME,
+            "-f",
+            "-",
         ]
         makevars = [
             "DEFAULT_INCLUDES",

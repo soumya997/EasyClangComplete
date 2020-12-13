@@ -14,27 +14,29 @@ class test_index_location(TestCase):
 
     def test_simple_init(self):
         """Test short initialization."""
-        location = IndexLocation(filename='test.cpp', line=10, column=10)
-        self.assertEqual(location.file.name, 'test.cpp')
-        self.assertEqual(location.file.extension, '.cpp')
-        self.assertEqual(location.file.short_name, 'test.cpp')
+        location = IndexLocation(filename="test.cpp", line=10, column=10)
+        self.assertEqual(location.file.name, "test.cpp")
+        self.assertEqual(location.file.extension, ".cpp")
+        self.assertEqual(location.file.short_name, "test.cpp")
         self.assertEqual(location.line, 10)
         self.assertEqual(location.column, 10)
 
     def test_full_init(self):
         """Test full initialization."""
         from os import path
-        long_path = path.join('some', 'folder', 'test.cpp')
+
+        long_path = path.join("some", "folder", "test.cpp")
         location = IndexLocation(filename=long_path, line=10, column=10)
         self.assertEqual(location.file.name, long_path)
-        self.assertEqual(location.file.extension, '.cpp')
-        self.assertEqual(location.file.short_name, 'test.cpp')
+        self.assertEqual(location.file.extension, ".cpp")
+        self.assertEqual(location.file.short_name, "test.cpp")
 
     def test_no_extension(self):
         """Test if we can initialize without the extension."""
         from os import path
-        long_path = path.join('some', 'folder', 'test')
+
+        long_path = path.join("some", "folder", "test")
         location = IndexLocation(filename=long_path, line=10, column=10)
         self.assertEqual(location.file.name, long_path)
-        self.assertEqual(location.file.extension, '')
-        self.assertEqual(location.file.short_name, 'test')
+        self.assertEqual(location.file.extension, "")
+        self.assertEqual(location.file.short_name, "test")

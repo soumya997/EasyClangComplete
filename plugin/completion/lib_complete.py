@@ -42,6 +42,7 @@ class Completer(BaseCompleter):
         tu (cindex.TranslationUnit): current translation unit
         valid (bool): Will be False if we fail to build proper clang index.
     """
+
     name = "lib"
     rlock = RLock()
 
@@ -68,11 +69,11 @@ class Completer(BaseCompleter):
             # slightly more complicated name retrieving to allow for more
             # complex version strings, e.g. 3.8.0
             cindex_module_name = ClangUtils.get_cindex_module_for_version(
-                self.version_str)
+                self.version_str
+            )
 
             if not cindex_module_name:
-                log.critical("No cindex module for clang version: %s",
-                             self.version_str)
+                log.critical("No cindex module for clang version: %s", self.version_str)
                 return
 
             # import cindex bundled with this plugin. We cannot use the default
@@ -83,9 +84,10 @@ class Completer(BaseCompleter):
 
             # initialize ignore list to account for private methods etc.
             self.default_ignore_list = [self.cindex.CursorKind.DESTRUCTOR]
-            self.bigger_ignore_list = self.default_ignore_list +\
-                [self.cindex.CursorKind.CLASS_DECL,
-                 self.cindex.CursorKind.ENUM_CONSTANT_DECL]
+            self.bigger_ignore_list = self.default_ignore_list + [
+                self.cindex.CursorKind.CLASS_DECL,
+                self.cindex.CursorKind.ENUM_CONSTANT_DECL,
+            ]
 
             # If we haven't already initialized the clang Python bindings, try
             # to figure out the path libclang.
@@ -94,7 +96,8 @@ class Completer(BaseCompleter):
                 libclang_dir, libclang_file = ClangUtils.find_libclang(
                     settings.clang_binary,
                     settings.libclang_path,
-                    settings.clang_version)
+                    settings.clang_version,
+                )
                 if libclang_dir:
                     self.cindex.Config.set_library_file(libclang_file)
                     self.cindex.Config.set_library_path(libclang_dir)
@@ -139,10 +142,11 @@ class Completer(BaseCompleter):
                 if not file_name or not path.exists(file_name):
                     raise ValueError("file name does not exist anymore")
 
-                parse_options = \
-                    (TU.PARSE_PRECOMPILED_PREAMBLE |
-                     TU.PARSE_DETAILED_PROCESSING_RECORD |
-                     TU.PARSE_INCLUDE_BRIEF_COMMENTS_IN_CODE_COMPLETION)
+                parse_options = (
+                    TU.PARSE_PRECOMPILED_PREAMBLE
+                    | TU.PARSE_DETAILED_PROCESSING_RECORD
+                    | TU.PARSE_INCLUDE_BRIEF_COMMENTS_IN_CODE_COMPLETION
+                )
                 if settings.use_libclang_caching:
                     parse_options |= TU.PARSE_CACHE_COMPLETION_RESULTS
 
@@ -150,7 +154,8 @@ class Completer(BaseCompleter):
                     filename=file_name,
                     args=self.clang_flags,
                     unsaved_files=unsaved_files,
-                    options=parse_options)
+                    options=parse_options,
+                )
                 self.tu = trans_unit
                 self.save_errors(self.tu.diagnostics)  # Store for the future.
             except Exception as e:
@@ -176,7 +181,8 @@ class Completer(BaseCompleter):
         file_name = view.file_name()
         file_body = view.substr(sublime.Region(0, view.size()))
         row_col = ZeroIndexedRowCol.from_1d_location(
-            view, completion_request.get_trigger_position())
+            view, completion_request.get_trigger_position()
+        )
         file_row_col = OneIndexedRowCol.from_zero_indexed(row_col)
 
         # unsaved files
@@ -192,8 +198,7 @@ class Completer(BaseCompleter):
                 if not file_name or not path.exists(file_name):
                     raise ValueError("file name does not exist anymore")
                 if int(self.version_str[0]) > 3:
-                    log.debug("using newer version of clang: %s",
-                              self.version_str)
+                    log.debug("using newer version of clang: %s", self.version_str)
                     # It is important to set this option for clang 4.0 as
                     # there is an assert in ASTUnit.cpp that checks if this
                     # flag corresponds to the one that was used for building
@@ -201,18 +206,19 @@ class Completer(BaseCompleter):
                     # we need it here too. See issue #230.
                     include_brief_comments = True
                 else:
-                    log.debug("using older version of clang: %s",
-                              self.version_str)
+                    log.debug("using older version of clang: %s", self.version_str)
                     # To avoid breaking compatibility with old versions of
                     # clang, where the assert is different, we make sure to
                     # pass False if the version is older. See issue #245.
                     include_brief_comments = False
                 complete_obj = self.tu.codeComplete(
                     file_name,
-                    file_row_col.row, file_row_col.col,
+                    file_row_col.row,
+                    file_row_col.col,
                     unsaved_files=unsaved_files,
                     include_macros=True,
-                    include_brief_comments=include_brief_comments)
+                    include_brief_comments=include_brief_comments,
+                )
             except Exception as e:
                 log.error("error while completing view %s: %s", file_name, e)
                 complete_obj = None
@@ -226,15 +232,16 @@ class Completer(BaseCompleter):
             trigger = view.substr(point - 2) + view.substr(point - 1)
             log.debug("Current trigger: '%s'", trigger)
             # We clean trigger from all symbols that cannot be part of one.
-            sanitized_trigger = ''.join(
-                [c for c in trigger if c in ALLOWED_TRIGGER_SYMBOLS])
+            sanitized_trigger = "".join(
+                [c for c in trigger if c in ALLOWED_TRIGGER_SYMBOLS]
+            )
             log.debug("Current sanitized_trigger: '%s'", sanitized_trigger)
             if sanitized_trigger not in GLOBAL_TRIGGERS:
                 excluded = self.bigger_ignore_list
             else:
                 excluded = self.default_ignore_list
             completions = Completer._parse_completions(complete_obj, excluded)
-        log.debug('completions: %s' % completions)
+        log.debug("completions: %s" % completions)
         return (completion_request, completions)
 
     def info(self, tooltip_request, settings):
@@ -271,21 +278,23 @@ class Completer(BaseCompleter):
                 return empty_info
             view = tooltip_request.get_view()
             row_col = ZeroIndexedRowCol.from_1d_location(
-                view, tooltip_request.get_trigger_position())
+                view, tooltip_request.get_trigger_position()
+            )
             file_row_col = OneIndexedRowCol.from_zero_indexed(row_col)
 
             cursor = self.tu.cursor.from_location(
                 self.tu,
                 self.tu.get_location(
-                    view.file_name(), (file_row_col.row, file_row_col.col)))
+                    view.file_name(), (file_row_col.row, file_row_col.col)
+                ),
+            )
             if not cursor:
                 return empty_info
             if cursor.kind in objc_types:
                 info_popup = Popup.info_objc(cursor, self.cindex, settings)
                 return tooltip_request, info_popup
             if cursor.referenced:
-                info_popup = Popup.info(
-                    cursor.referenced, self.cindex, settings)
+                info_popup = Popup.info(cursor.referenced, self.cindex, settings)
                 return tooltip_request, info_popup
             return empty_info
 
@@ -314,9 +323,8 @@ class Completer(BaseCompleter):
                 return False
             if isinstance(self.tu.cursor.displayname, bytes):
                 # it is bytes, convert!
-                log.debug("converting bytes '%s' into str",
-                          self.tu.cursor.displayname)
-                displayname = self.tu.cursor.displayname.decode('utf-8')
+                log.debug("converting bytes '%s' into str", self.tu.cursor.displayname)
+                displayname = self.tu.cursor.displayname.decode("utf-8")
             else:
                 # it is a normal string, no conversion needed
                 displayname = self.tu.cursor.displayname
@@ -326,8 +334,7 @@ class Completer(BaseCompleter):
                 # completely recreate a translation unit if the filename has
                 # changed. Addressed in issue #191.
                 log.debug("translation unit file does not match view one")
-                log.debug("names: '%s' vs '%s'",
-                          displayname, view.file_name())
+                log.debug("names: '%s' vs '%s'", displayname, view.file_name())
                 log.debug("recreate translation unit completely")
                 self.parse_tu(view, settings)
             log.debug("reparsing translation_unit for view %s", v_id)
@@ -359,8 +366,8 @@ class Completer(BaseCompleter):
             if not self.tu:
                 return None
             cursor = self.tu.cursor.from_location(
-                self.tu, self.tu.get_location(view.file_name(),
-                                              file_row_col.as_tuple()))
+                self.tu, self.tu.get_location(view.file_name(), file_row_col.as_tuple())
+            )
             ref_new = None
             if cursor and cursor.referenced:
                 ref = cursor.referenced
@@ -406,15 +413,16 @@ class Completer(BaseCompleter):
         completions = []
 
         # sort results according to their clang based priority
-        sorted_results = sorted(complete_results.results,
-                                key=lambda x: x.string.priority)
+        sorted_results = sorted(
+            complete_results.results, key=lambda x: x.string.priority
+        )
 
         for c in sorted_results:
             if not Completer._is_valid_result(c, excluded):
                 continue
-            hint = ''
-            contents = ''
-            trigger = ''
+            hint = ""
+            contents = ""
+            trigger = ""
             place_holders = 1
             for chunk in c.string:
                 if not chunk:
@@ -425,15 +433,14 @@ class Completer(BaseCompleter):
                 if chunk.isKindTypedText():
                     trigger += chunk.spelling
                 if chunk.isKindResultType():
-                    hint += ' '
+                    hint += " "
                     continue
                 if chunk.isKindOptional():
                     continue
                 if chunk.isKindInformative():
                     continue
                 if chunk.isKindPlaceHolder():
-                    contents += ('${' + str(place_holders) + ':' +
-                                 chunk.spelling + '}')
+                    contents += "${" + str(place_holders) + ":" + chunk.spelling + "}"
                     place_holders += 1
                 else:
                     contents += chunk.spelling

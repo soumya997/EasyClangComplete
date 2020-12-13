@@ -44,9 +44,11 @@ class ThreadJob:
 
     def __is_high_priority(self):
         """Check if job is high priority."""
-        return self.name in [ThreadJob.UPDATE_TAG,
-                             ThreadJob.CLEAR_TAG,
-                             ThreadJob.GENERATE_DB_TAG]
+        return self.name in [
+            ThreadJob.UPDATE_TAG,
+            ThreadJob.CLEAR_TAG,
+            ThreadJob.GENERATE_DB_TAG,
+        ]
 
     def __repr__(self):
         """Representation."""

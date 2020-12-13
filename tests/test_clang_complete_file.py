@@ -31,26 +31,24 @@ class TestFlagsFile(TestCase):
 
     def test_init(self):
         """Initialization test."""
-        self.assertEqual(FlagsFile._FILE_NAME, '.clang_complete')
+        self.assertEqual(FlagsFile._FILE_NAME, ".clang_complete")
 
     def test_load_file(self):
         """Test finding and loading existing file."""
-        test_file_path = path.join(
-            path.dirname(__file__), 'test_files', 'test.cpp')
+        test_file_path = path.join(path.dirname(__file__), "test_files", "test.cpp")
 
-        flags_file = FlagsFile(['-I', '-isystem'])
+        flags_file = FlagsFile(["-I", "-isystem"])
         flags = flags_file.get_flags(test_file_path)
         # This flag only exists in .clang_complete to help us test that
         # we can read the flag.
-        self.assertIn(Flag('', '-Wabi'), flags)
+        self.assertIn(Flag("", "-Wabi"), flags)
 
     def test_fail_to_find(self):
         """Test failing to find a .clang_complete file."""
-        test_file_path = path.join(
-            path.dirname(__file__), 'test_files', 'test.cpp')
+        test_file_path = path.join(path.dirname(__file__), "test_files", "test.cpp")
 
         folder = path.dirname(test_file_path)
-        flags_file = FlagsFile(['-I', '-isystem'])
+        flags_file = FlagsFile(["-I", "-isystem"])
         wrong_scope = SearchScope(from_folder=folder, to_folder=folder)
         flags = flags_file.get_flags(test_file_path, wrong_scope)
         self.assertIs(flags, None)

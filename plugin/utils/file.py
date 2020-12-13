@@ -15,6 +15,7 @@ log = logging.getLogger("ECC")
 
 class File:
     """Encapsulates a file."""
+
     __modification_cache = {}
 
     def __init__(self, file_path=None):
@@ -33,9 +34,9 @@ class File:
         self.__full_path = path.abspath(file_path)
         # initialize the file if it does not exist already
         if path.isfile(self.__full_path):
-            open(self.__full_path, 'r').close()
+            open(self.__full_path, "r").close()
         else:
-            open(self.__full_path, 'a+').close()
+            open(self.__full_path, "a+").close()
 
     @property
     def full_path(self):
@@ -61,7 +62,7 @@ class File:
         if not self.loaded():
             log.warning("Trying to read file that has not been loaded.")
             return None
-        with open(self.__full_path, encoding='utf-8') as f:
+        with open(self.__full_path, encoding="utf-8") as f:
             return f.readlines()
 
     def loaded(self):
@@ -115,6 +116,7 @@ class File:
             bool: True if valid, False otherwise
         """
         import fnmatch
+
         for ignore_glob in glob_ignore_list:
             if fnmatch.fnmatch(file_name, ignore_glob):
                 # We have found at least one matching ignore pattern.
@@ -122,7 +124,7 @@ class File:
         return False
 
     @staticmethod
-    def canonical_path(input_path, folder=''):
+    def canonical_path(input_path, folder=""):
         """Return a canonical path of the file.
 
         Args:
@@ -143,22 +145,21 @@ class File:
         return normpath
 
     @staticmethod
-    def expand_all(input_path,
-                   wildcard_values={},
-                   current_folder='',
-                   expand_globbing=True):
+    def expand_all(
+        input_path, wildcard_values={}, current_folder="", expand_globbing=True
+    ):
         """Expand everything in this path.
 
         This returns a list of canonical paths.
         """
         expanded_path = path.expandvars(input_path)
-        expanded_path = sublime.expand_variables(
-            expanded_path, wildcard_values)
+        expanded_path = sublime.expand_variables(expanded_path, wildcard_values)
         expanded_path = File.canonical_path(expanded_path, current_folder)
         if not expanded_path:
             return []
         if expand_globbing:
             from glob import glob
+
             all_paths = glob(expanded_path)
         else:
             all_paths = [expanded_path]
@@ -192,17 +193,16 @@ class File:
         Returns:
             File: found file
         """
-        log.debug("Searching '%s' file in: %s",
-                  file_name, search_scope)
+        log.debug("Searching '%s' file in: %s", file_name, search_scope)
         for current_folder in search_scope:
             import os
+
             if not os.access(current_folder, os.R_OK):
                 continue
             for file in listdir(current_folder):
                 if file == file_name:
                     found_file = File(path.join(current_folder, file))
-                    log.debug("Found '%s' file: %s",
-                              file_name, found_file.full_path)
+                    log.debug("Found '%s' file: %s", file_name, found_file.full_path)
                     if not search_content:
                         log.debug("Nothing to search for in file so its ok.")
                         return found_file

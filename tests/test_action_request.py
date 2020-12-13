@@ -25,46 +25,40 @@ class test_action_request(GuiTestWrapper):
 
     def test_setup_view(self):
         """Test that setup view correctly sets up the view."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
         self.check_view(file_name)
 
     def test_round_trip(self):
         """Test that we can create another location from rowcol of the view."""
-        file_name = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
-        query_pos = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(5, 9))
+        file_name = path.join(path.dirname(__file__), "test_files", "test.cpp")
+        query_pos = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(5, 9))
         self.set_up_view(file_path=file_name, cursor_position=query_pos)
         self.assertEqual(self.get_row(query_pos.row), "  void foo(double a);")
         equal_pos = ZeroIndexedRowCol.from_1d_location(
-            self.view, query_pos.as_1d_location(self.view))
+            self.view, query_pos.as_1d_location(self.view)
+        )
         self.assertEqual(equal_pos.row, query_pos.row)
         self.assertEqual(equal_pos.col, query_pos.col)
-        self.assertEqual(equal_pos.as_1d_location(self.view),
-                         query_pos.as_1d_location(self.view))
+        self.assertEqual(
+            equal_pos.as_1d_location(self.view), query_pos.as_1d_location(self.view)
+        )
 
     def test_create(self):
         """Test creation."""
         self.set_up_view()
         expected_trigger_position = 42
         action_request = ActionRequest(self.view, expected_trigger_position)
-        self.assertEqual(expected_trigger_position,
-                         action_request.get_trigger_position())
-        self.assertEqual(self.view.buffer_id(),
-                         action_request.get_view().buffer_id())
+        self.assertEqual(
+            expected_trigger_position, action_request.get_trigger_position()
+        )
+        self.assertEqual(self.view.buffer_id(), action_request.get_view().buffer_id())
         expected_identifier = (self.view.buffer_id(), expected_trigger_position)
         self.assertEqual(expected_identifier, action_request.get_identifier())
 
     def test_suitable(self):
         """Test that we detect if the view is suitable."""
-        file_path = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
-        query_pos = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(5, 9))
+        file_path = path.join(path.dirname(__file__), "test_files", "test.cpp")
+        query_pos = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(5, 9))
         self.set_up_view(file_path=file_path, cursor_position=query_pos)
         self.assertEqual(self.get_row(query_pos.row), "  void foo(double a);")
         trigger_position = self.view.text_point(query_pos.row, query_pos.col)
@@ -76,11 +70,8 @@ class test_action_request(GuiTestWrapper):
 
     def test_not_suitable_location(self):
         """Test that we detect if the view is suitable."""
-        file_path = path.join(path.dirname(__file__),
-                              'test_files',
-                              'test.cpp')
-        query_pos = ZeroIndexedRowCol.from_one_indexed(
-            OneIndexedRowCol(5, 9))
+        file_path = path.join(path.dirname(__file__), "test_files", "test.cpp")
+        query_pos = ZeroIndexedRowCol.from_one_indexed(OneIndexedRowCol(5, 9))
         self.set_up_view(file_path=file_path, cursor_position=query_pos)
         self.assertEqual(self.get_row(query_pos.row), "  void foo(double a);")
         trigger_position = self.view.text_point(query_pos.row, query_pos.col)

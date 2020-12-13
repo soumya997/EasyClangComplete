@@ -23,7 +23,7 @@ class Flag:
         FLAG_INDICATORS (str[]): A list of all chars that indicate a flag prefix
     """
 
-    def __init__(self, prefix, body, separator=''):
+    def __init__(self, prefix, body, separator=""):
         """Initialize a flag with two parts.
 
         Args:
@@ -57,8 +57,11 @@ class Flag:
         for flag_indicator in Flag.FLAG_INDICATORS:
             if string.startswith(flag_indicator):
                 return True
-        log.debug("'%s' doesn't start with any valid flag prefix: %s",
-                  string, Flag.FLAG_INDICATORS)
+        log.debug(
+            "'%s' doesn't start with any valid flag prefix: %s",
+            string,
+            Flag.FLAG_INDICATORS,
+        )
         return False
 
     def as_list(self):
@@ -76,10 +79,8 @@ class Flag:
     def __repr__(self):
         """Return flag as a printable string."""
         if self.__prefix:
-            return '({}{}{})'.format(self.__prefix,
-                                     self.__separator,
-                                     self.__body)
-        return '({})'.format(self.__body)
+            return "({}{}{})".format(self.__prefix, self.__separator, self.__body)
+        return "({})".format(self.__body)
 
     def __hash__(self):
         """Compute a hash of a flag."""
@@ -89,13 +90,14 @@ class Flag:
 
     def __eq__(self, other):
         """Check if it is equal to another flag."""
-        return self.__prefix == other.prefix\
-            and self.__body == other.body\
+        return (
+            self.__prefix == other.prefix
+            and self.__body == other.body
             and self.__separator == other.separator
+        )
 
     @staticmethod
-    def tokenize_list(all_split_line,
-                      current_folder=''):
+    def tokenize_list(all_split_line, current_folder=""):
         """Find flags, that need to be separated and separate them.
 
         Args:
@@ -120,16 +122,20 @@ class Flag:
                 # add both this and next part to a flag
                 if (i + 1) < len(all_split_line):
                     next_entry = all_split_line[i + 1].strip()
-                    flags += Flag.Builder()\
-                        .with_prefix(entry)\
-                        .with_separator(' ')\
-                        .with_body(next_entry)\
+                    flags += (
+                        Flag.Builder()
+                        .with_prefix(entry)
+                        .with_separator(" ")
+                        .with_body(next_entry)
                         .build_with_expansion(current_folder)
+                    )
                     skip_next_entry = True
                     continue
-            flags += Flag.Builder()\
-                .from_unparsed_string(entry)\
+            flags += (
+                Flag.Builder()
+                .from_unparsed_string(entry)
                 .build_with_expansion(current_folder)
+            )
         return flags
 
         @staticmethod
@@ -152,9 +158,9 @@ class Flag:
 
         def __init__(self):
             """Initialize the empty internal flag."""
-            self.__prefix = ''
-            self.__body = ''
-            self.__separator = ''
+            self.__prefix = ""
+            self.__body = ""
+            self.__separator = ""
 
         def from_unparsed_string(self, chunk):
             """Parse an unknown string into body and prefix."""
@@ -165,7 +171,7 @@ class Flag:
             for prefix in Flag.SEPARABLE_PREFIXES:
                 if chunk.startswith(prefix):
                     self.__prefix = prefix
-                    rest = chunk[len(prefix):]
+                    rest = chunk[len(prefix) :]
                     if rest and rest[0] in Flag.POSSIBLE_SEPARATORS:
                         self.__separator = rest[0]
                         rest = rest[1:]
@@ -193,32 +199,37 @@ class Flag:
                 log.warning("Unexpected flag prefix: '%s'", self.__prefix)
             return self
 
-        def build_with_expansion(self, current_folder='', wildcard_values={}):
+        def build_with_expansion(self, current_folder="", wildcard_values={}):
             """Expand all expandable entries and return a resulting list."""
             if not self.__body and not self.__prefix:
                 return []
             if self.__prefix in Flag.PREFIXES_WITH_PATHS:
                 all_flags = []
                 for expanded_body in File.expand_all(
-                        input_path=self.__body,
-                        wildcard_values=wildcard_values,
-                        current_folder=current_folder):
-                    all_flags.append(Flag(prefix=self.__prefix,
-                                          body=expanded_body,
-                                          separator=self.__separator))
+                    input_path=self.__body,
+                    wildcard_values=wildcard_values,
+                    current_folder=current_folder,
+                ):
+                    all_flags.append(
+                        Flag(
+                            prefix=self.__prefix,
+                            body=expanded_body,
+                            separator=self.__separator,
+                        )
+                    )
                 return all_flags
             # This does not hold a path. Therefore we don't need to expand it.
-            return [Flag(prefix=self.__prefix,
-                         body=self.__body,
-                         separator=self.__separator)]
+            return [
+                Flag(prefix=self.__prefix, body=self.__body, separator=self.__separator)
+            ]
 
         def build(self):
             """Create a flag."""
             if self.__prefix in Flag.PREFIXES_WITH_PATHS:
                 self.__body = File.canonical_path(self.__body)
-            return Flag(prefix=self.__prefix,
-                        body=self.__body,
-                        separator=self.__separator)
+            return Flag(
+                prefix=self.__prefix, body=self.__body, separator=self.__separator
+            )
 
     # All strings that might separate the prefix of a flag from its body.
     POSSIBLE_SEPARATORS = [" ", "="]
@@ -233,97 +244,98 @@ class Flag:
     FLAG_INDICATORS = ALL_FLAG_INDICATORS[platform.system()]
 
     # All prefixes that denote includes.
-    PREFIXES_WITH_PATHS = set([
-        "--cuda-path",
-        "--ptxas-path"
-        "-B",
-        "-cxx-isystem",
-        "-F",
-        "-fmodules-cache-path",
-        "-fmodules-user-build-path",
-        "-fplugin",
-        "-fprebuilt-module-path"
-        "-fprofile-use",
-        "-I",
-        "-idirafter",
-        "-iframework",
-        "-iframeworkwithsysroot",
-        "-imacros",
-        "-include",
-        "-include-pch",
-        "-iprefix",
-        "-iquote",
-        "-isysroot",
-        "-isystem",
-        "-isystem",
-        "-isystem-after",
-        "-iwithprefix",
-        "-iwithprefixbefore",
-        "-iwithsysroot",
-        "-L",
-        "-MF",
-        "-module-dependency-dir",
-        "-msvc",
-        "-o"
-        "-objcmt-whitelist-dir-path",
-        "/cxx-isystem",
-        "/I",
-        "/msvc",
-    ])
+    PREFIXES_WITH_PATHS = set(
+        [
+            "--cuda-path",
+            "--ptxas-path" "-B",
+            "-cxx-isystem",
+            "-F",
+            "-fmodules-cache-path",
+            "-fmodules-user-build-path",
+            "-fplugin",
+            "-fprebuilt-module-path" "-fprofile-use",
+            "-I",
+            "-idirafter",
+            "-iframework",
+            "-iframeworkwithsysroot",
+            "-imacros",
+            "-include",
+            "-include-pch",
+            "-iprefix",
+            "-iquote",
+            "-isysroot",
+            "-isystem",
+            "-isystem",
+            "-isystem-after",
+            "-iwithprefix",
+            "-iwithprefixbefore",
+            "-iwithsysroot",
+            "-L",
+            "-MF",
+            "-module-dependency-dir",
+            "-msvc",
+            "-o" "-objcmt-whitelist-dir-path",
+            "/cxx-isystem",
+            "/I",
+            "/msvc",
+        ]
+    )
 
     # Generated from `clang -help` with regex: ([-/][\w-]+)\s\<\w+\>\s
-    SEPARABLE_PREFIXES = set([
-        "--analyzer-output",
-        "--config",
-        "-arcmt-migrate-report-output",
-        "-cxx-isystem",
-        "-dependency-dot",
-        "-dependency-file",
-        "-F",
-        "-fmodules-cache-path",
-        "-fmodules-user-build-path",
-        "-I",
-        "-idirafter",
-        "-iframework",
-        "-imacros",
-        "-include",
-        "-include-pch",
-        "-iprefix",
-        "-iquote",
-        "-isysroot",
-        "-isystem",
-        "-ivfsoverlay",
-        "-iwithprefix",
-        "-iwithprefixbefore",
-        "-iwithsysroot",
-        "-meabi",
-        "-MF",
-        "-MJ",
-        "-mllvm",
-        "-module-dependency-dir",
-        "-MQ",
-        "-MT",
-        "-mthread-model",
-        "-o",
-        "-serialize-diagnostics",
-        "-target",
-        "-T",
-        "-Tbss",
-        "-Tdata",
-        "-Ttext",
-        "-working-directory",
-        "-x",
-        "-Xanalyzer",
-        "-Xassembler",
-        "-Xclang",
-        "-Xlinker",
-        "-Xopenmp-target",
-        "-Xpreprocessor",
-        "-z",
-        "/FI",
-        "/I",
-        "/link",
-        "/Tc",
-        "/Tp",
-        "/U"
-    ])
+    SEPARABLE_PREFIXES = set(
+        [
+            "--analyzer-output",
+            "--config",
+            "-arcmt-migrate-report-output",
+            "-cxx-isystem",
+            "-dependency-dot",
+            "-dependency-file",
+            "-F",
+            "-fmodules-cache-path",
+            "-fmodules-user-build-path",
+            "-I",
+            "-idirafter",
+            "-iframework",
+            "-imacros",
+            "-include",
+            "-include-pch",
+            "-iprefix",
+            "-iquote",
+            "-isysroot",
+            "-isystem",
+            "-ivfsoverlay",
+            "-iwithprefix",
+            "-iwithprefixbefore",
+            "-iwithsysroot",
+            "-meabi",
+            "-MF",
+            "-MJ",
+            "-mllvm",
+            "-module-dependency-dir",
+            "-MQ",
+            "-MT",
+            "-mthread-model",
+            "-o",
+            "-serialize-diagnostics",
+            "-target",
+            "-T",
+            "-Tbss",
+            "-Tdata",
+            "-Ttext",
+            "-working-directory",
+            "-x",
+            "-Xanalyzer",
+            "-Xassembler",
+            "-Xclang",
+            "-Xlinker",
+            "-Xopenmp-target",
+            "-Xpreprocessor",
+            "-z",
+            "/FI",
+            "/I",
+            "/link",
+            "/Tc",
+            "/Tp",
+            "/U",
+        ]
+    )

@@ -3,6 +3,7 @@ import imp
 
 from EasyClangComplete.tests.gui_test_wrapper import GuiTestWrapper
 from EasyClangComplete.plugin.utils import quick_panel_handler
+
 imp.reload(quick_panel_handler)
 
 QuickPanelHandler = quick_panel_handler.QuickPanelHandler
@@ -23,21 +24,15 @@ class test_panel_handler(GuiTestWrapper):
         """Test that the items are well formatted."""
         self.set_up_view()
         errors = [
-            {
-                "severity": 3,
-                "error": "ERROR_MSG",
-                "file": "error_file"
-            },
-            {
-                "severity": 2,
-                "error": "WARNING_MSG",
-                "file": "warning_file"
-            }
+            {"severity": 3, "error": "ERROR_MSG", "file": "error_file"},
+            {"severity": 2, "error": "WARNING_MSG", "file": "warning_file"},
         ]
         panel_handler = QuickPanelHandler(self.view, errors)
         items_to_show = panel_handler.items_to_show()
-        expected = [["ERROR: ERROR_MSG", "error_file"],
-                    ["WARNING: WARNING_MSG", "warning_file"]]
+        expected = [
+            ["ERROR: ERROR_MSG", "error_file"],
+            ["WARNING: WARNING_MSG", "warning_file"],
+        ]
         self.assertEqual(items_to_show, expected)
 
     def test_on_done(self):
@@ -49,7 +44,7 @@ class test_panel_handler(GuiTestWrapper):
                 "error": "ERROR_MSG",
                 "file": "error_file",
                 "row": 0,
-                "col": 0
+                "col": 0,
             },
         ]
         panel_handler = QuickPanelHandler(self.view, errors)

@@ -5,28 +5,27 @@ Attributes:
 """
 import time
 import logging
+import fnmatch
+
 from os import path
 
+from ..completion import bin_complete
+from ..completion import lib_complete
+from ..error_vis.popup_error_vis import PopupErrorVis
+from ..flags_sources.c_cpp_properties import CCppProperties
+from ..flags_sources.cmake_file import CMakeFile
+from ..flags_sources.compilation_db import CompilationDb
+from ..flags_sources.compiler_builtins import CompilerBuiltIns
+from ..flags_sources.CppProperties import CppProperties
+from ..flags_sources.flags_file import FlagsFile
+from ..flags_sources.makefile import Makefile
+from ..settings.settings_storage import SettingsStorage
 from ..utils.file import File
-from ..utils.subl.subl_bridge import SublBridge
-
 from ..utils.flag import Flag
-from ..utils.unique_list import UniqueList
 from ..utils.search_scope import ListSearchScope
 from ..utils.search_scope import TreeSearchScope
-
-from ..completion import lib_complete
-from ..completion import bin_complete
-
-from ..error_vis.popup_error_vis import PopupErrorVis
-
-from ..flags_sources.flags_file import FlagsFile
-from ..flags_sources.cmake_file import CMakeFile
-from ..flags_sources.makefile import Makefile
-from ..flags_sources.c_cpp_properties import CCppProperties
-from ..flags_sources.CppProperties import CppProperties
-from ..flags_sources.compilation_db import CompilationDb
-from ..settings.settings_storage import SettingsStorage
+from ..utils.subl.subl_bridge import SublBridge
+from ..utils.unique_list import UniqueList
 
 log = logging.getLogger("ECC")
 
@@ -38,7 +37,7 @@ Please fix your settings.
 """
 
 
-class ViewConfig(object):
+class ViewConfig:
     """A bundle representing a view configuration.
 
     Stores everything needed to perform completion tasks on a given view with
@@ -62,10 +61,10 @@ class ViewConfig(object):
 
         # set up a proper object
         completer, flags, include_folders = ViewConfig.__generate_essentials(
-            view, settings)
+            view, settings
+        )
         if not completer:
-            log.warning(" could not generate completer for view %s",
-                        view.buffer_id())
+            log.warning(" could not generate completer for view %s", view.buffer_id())
             return
 
         self.completer = completer
@@ -87,7 +86,8 @@ class ViewConfig(object):
         self.touch()
         # update if needed
         completer, flags, include_folders = ViewConfig.__generate_essentials(
-            view, settings)
+            view, settings
+        )
         if self.needs_update(completer, flags):
             log.debug("config needs new completer.")
             self.completer = completer
@@ -170,27 +170,30 @@ class ViewConfig(object):
         Returns:
             (Completer, str[]): A completer bundled with flags as str list.
         """
-        import fnmatch
         if not SublBridge.is_valid_view(view):
             log.warning(" no flags for an invalid view %s.", view)
-            return (None, [])
+            return (None, [], [])
         completer = ViewConfig.__init_completer(settings)
         prefixes = completer.compiler_variant.include_prefixes
 
         init_flags = completer.compiler_variant.init_flags
         lang_flags = ViewConfig.__get_default_flags(
-            view, settings, completer.compiler_variant.need_lang_flags)
+            view, settings, completer.compiler_variant.need_lang_flags
+        )
         log.debug("Common")
-        common_flags = ViewConfig.__get_common_flags(prefixes, settings)
+        common_flags = ViewConfig.__get_common_flags(settings)
         log.debug("Source")
         source_flags = ViewConfig.__load_source_flags(view, settings, prefixes)
         log.debug("Merge")
         flags = ViewConfig.__merge_flags(
-            init_flags, lang_flags, common_flags, source_flags)
+            init_flags, lang_flags, common_flags, source_flags
+        )
 
         flags_as_str_list = []
-        log.debug("Appending and filtering flags with ignore patterns: %s",
-                  settings.ignore_flags)
+        log.debug(
+            "Appending and filtering flags with ignore patterns: %s",
+            settings.ignore_flags,
+        )
         for flag in flags:
             ignore_this_flag = False
             for pattern in settings.ignore_flags:
@@ -214,7 +217,7 @@ class ViewConfig(object):
                     include_folders.append(flag.body)
                     continue
                 if flag.body.startswith(prefix):
-                    include_folders.append(flag.body[len(prefix):])
+                    include_folders.append(flag.body[len(prefix) :])
                     continue
         return include_folders
 
@@ -235,33 +238,35 @@ class ViewConfig(object):
         """
         log.debug("lang flags: %s", lang_flags)
         lang_std_flag_indices = [
-            i for i, flag in enumerate(lang_flags)
-            if flag.body.startswith('-std=')]
+            i for i, flag in enumerate(lang_flags) if flag.body.startswith("-std=")
+        ]
         source_std_flags_indices = [
-            i for i, flag in enumerate(source_flags)
-            if flag.body.startswith('-std=')]
+            i for i, flag in enumerate(source_flags) if flag.body.startswith("-std=")
+        ]
 
         # Perform checks for user's settings.
         if len(lang_std_flag_indices) > 1:
             std_flags = [lang_flags[i] for i in lang_std_flag_indices]
             error_msg = TOO_MANY_STD_FLAGS_ERROR_MSG.format(
-                which_settings="`lang_flags` settings",
-                std_flags=std_flags)
+                which_settings="`lang_flags` settings", std_flags=std_flags
+            )
             SublBridge.show_error_dialog(error_msg)
         if len(source_std_flags_indices) > 1:
             std_flags = [source_flags[i] for i in source_std_flags_indices]
             error_msg = TOO_MANY_STD_FLAGS_ERROR_MSG.format(
-                which_settings="source generated settings",
-                std_flags=std_flags)
+                which_settings="source generated settings", std_flags=std_flags
+            )
             # TODO(igor): Do not show an error here, discussion in issue #417
             log.error(error_msg)
 
         # Replace default flags with generated ones if needed.
         if source_std_flags_indices and lang_std_flag_indices:
             # Remove the lang flags std flag, leave only source one.
-            log.debug("Removing default std flag: '%s' in favor of: '%s'",
-                      lang_flags[lang_std_flag_indices[0]],
-                      source_flags[source_std_flags_indices[0]])
+            log.debug(
+                "Removing default std flag: '%s' in favor of: '%s'",
+                lang_flags[lang_std_flag_indices[0]],
+                source_flags[source_std_flags_indices[0]],
+            )
             del lang_flags[lang_std_flag_indices[0]]
 
         # Combine all flags into a unique list and return it.
@@ -283,12 +288,15 @@ class ViewConfig(object):
         """
         current_dir = path.dirname(view.file_name())
         default_search_scope = TreeSearchScope(
-            from_folder=current_dir,
-            to_folder=settings.project_folder)
+            from_folder=current_dir, to_folder=settings.project_folder
+        )
         for source_dict in settings.flags_sources:
             if SettingsStorage.FILE_TAG not in source_dict:
-                log.critical("Flag source %s has no '%s' entry",
-                             source_dict, SettingsStorage.FILE_TAG)
+                log.critical(
+                    "Flag source %s has no '%s' entry",
+                    source_dict,
+                    SettingsStorage.FILE_TAG,
+                )
                 continue
             search_scope = default_search_scope
             file_name = source_dict[SettingsStorage.FILE_TAG]
@@ -298,8 +306,7 @@ class ViewConfig(object):
                 search_folders = source_dict[SettingsStorage.SEARCH_IN_TAG]
                 search_scope = ListSearchScope(search_folders)
             if file_name == "CMakeLists.txt":
-                prefix_paths = source_dict.get(
-                    SettingsStorage.PREFIX_PATHS_TAG, None)
+                prefix_paths = source_dict.get(SettingsStorage.PREFIX_PATHS_TAG, None)
                 cmake_flags = source_dict.get(SettingsStorage.FLAGS_TAG, None)
                 flag_source = CMakeFile(
                     include_prefixes,
@@ -308,14 +315,15 @@ class ViewConfig(object):
                     settings.cmake_binary,
                     settings.header_to_source_mapping,
                     settings.target_compilers,
-                    settings.lazy_flag_parsing)
+                    settings.lazy_flag_parsing,
+                )
             elif file_name == "Makefile":
                 flag_source = Makefile(include_prefixes)
             elif file_name == "compile_commands.json":
                 flag_source = CompilationDb(
                     include_prefixes,
                     settings.header_to_source_mapping,
-                    settings.lazy_flag_parsing
+                    settings.lazy_flag_parsing,
                 )
             elif file_name == ".clang_complete":
                 flag_source = FlagsFile(include_prefixes)
@@ -332,7 +340,7 @@ class ViewConfig(object):
         return []
 
     @staticmethod
-    def __get_common_flags(include_prefixes, settings):
+    def __get_common_flags(settings):
         """Get common flags as list of flags."""
         return settings.common_flags
 
@@ -373,7 +381,6 @@ class ViewConfig(object):
         Returns:
             Flag[]: A list of language-specific flags.
         """
-        from ..flags_sources.compiler_builtins import CompilerBuiltIns
         lang_tag, lang = SublBridge.get_view_lang(view, settings)
         lang_flags = []
         if need_lang_flags:
@@ -386,9 +393,9 @@ class ViewConfig(object):
         if target_compiler is None and settings.use_default_includes:
             target_compiler = settings.clang_binary
         if target_compiler is not None:
-            built_ins = CompilerBuiltIns(compiler=target_compiler,
-                                         lang_flags=lang_flags,
-                                         filename=None)
+            built_ins = CompilerBuiltIns(
+                compiler=target_compiler, lang_flags=lang_flags, filename=None
+            )
             if settings.use_default_definitions:
                 lang_flags += built_ins.defines
             lang_flags += built_ins.includes

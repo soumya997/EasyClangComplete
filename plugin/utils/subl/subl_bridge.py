@@ -12,12 +12,15 @@ _log = logging.getLogger("ECC")
 class SublBridge:
     """A small help class that bridges with sublime (maybe will grow)."""
 
-    NO_DEFAULT_COMPLETIONS = sublime.INHIBIT_WORD_COMPLETIONS \
-        | sublime.INHIBIT_EXPLICIT_COMPLETIONS
+    NO_DEFAULT_COMPLETIONS = (
+        sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS
+    )
 
     SHOW_DEFAULT_COMPLETIONS = None
-    HIDE_DEFAULT_COMPLETIONS = ([], sublime.INHIBIT_WORD_COMPLETIONS |
-                                sublime.INHIBIT_EXPLICIT_COMPLETIONS)
+    HIDE_DEFAULT_COMPLETIONS = (
+        [],
+        sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS,
+    )
 
     @staticmethod
     def set_status(message):
@@ -115,11 +118,15 @@ class SublBridge:
             view (sublime.View): view to open completion window in
         """
         _log.debug("reload completion tooltip")
-        view.run_command('hide_auto_complete')
-        view.run_command('auto_complete', {
-            'disable_auto_insert': True,
-            'api_completions_only': False,
-            'next_competion_if_showing': False})
+        view.run_command("hide_auto_complete")
+        view.run_command(
+            "auto_complete",
+            {
+                "disable_auto_insert": True,
+                "api_completions_only": False,
+                "next_competion_if_showing": False,
+            },
+        )
 
     @staticmethod
     def show_error_dialog(message):
@@ -135,14 +142,13 @@ class SublBridge:
     LANG_CPP_TAG = "CPP"
     LANG_OBJECTIVE_C_TAG = "OBJECTIVE_C"
     LANG_OBJECTIVE_CPP_TAG = "OBJECTIVE_CPP"
-    LANG_TAGS = [LANG_C_TAG, LANG_CPP_TAG,
-                 LANG_OBJECTIVE_C_TAG, LANG_OBJECTIVE_CPP_TAG]
+    LANG_TAGS = [LANG_C_TAG, LANG_CPP_TAG, LANG_OBJECTIVE_C_TAG, LANG_OBJECTIVE_CPP_TAG]
 
     LANG_NAMES = {
-        LANG_C_TAG: 'c',
-        LANG_CPP_TAG: 'c++',
-        LANG_OBJECTIVE_CPP_TAG: 'objective-c++',
-        LANG_OBJECTIVE_C_TAG: 'objective-c'
+        LANG_C_TAG: "c",
+        LANG_CPP_TAG: "c++",
+        LANG_OBJECTIVE_CPP_TAG: "objective-c++",
+        LANG_OBJECTIVE_C_TAG: "objective-c",
     }
 
     @staticmethod
@@ -174,8 +180,7 @@ class SublBridge:
             str: syntax, e.g. "C", "C++"
         """
         try:
-            syntax = re.findall(SublBridge.SYNTAX_REGEX,
-                                view.settings().get('syntax'))
+            syntax = re.findall(SublBridge.SYNTAX_REGEX, view.settings().get("syntax"))
             if len(syntax) > 0:
                 return syntax[0]
         except TypeError as e:
@@ -213,6 +218,7 @@ class SublBridge:
             bool: True if we want to handle this view, False otherwise
         """
         from os import path
+
         if not view:
             _log.debug("view is None")
             return False
@@ -274,7 +280,7 @@ class SublBridge:
             return PosStatus.COMPLETION_NEEDED
 
         this_line = SublBridge.get_line(view, point)
-        if this_line.startswith('#include'):
+        if this_line.startswith("#include"):
             _log.debug("completing an include")
             return PosStatus.COMPLETE_INCLUDES
         # if nothing fired we don't need to do anything
@@ -284,6 +290,7 @@ class SublBridge:
 
 class PosStatus:
     """Enum class with values for completion status."""
+
     COMPLETION_NEEDED = 0
     COMPLETION_NOT_NEEDED = 1
     WRONG_TRIGGER = 2

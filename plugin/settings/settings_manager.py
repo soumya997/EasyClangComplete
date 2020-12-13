@@ -87,7 +87,7 @@ class SettingsManager:
             listener (function): function to call on settings change
         """
         if listener in self.__change_listeners:
-            log.error('this settings listener was already added before')
+            log.error("this settings listener was already added before")
         self.__change_listeners.append(listener)
 
     def __init_for_view(self, view):
@@ -124,11 +124,9 @@ class SettingsManager:
         """
         settings_file_name = PKG_NAME + ".sublime-settings"
         log.debug("loading settings: '%s'", settings_file_name)
-        self.__subl_settings = sublime.load_settings(
-            PKG_NAME + ".sublime-settings")
+        self.__subl_settings = sublime.load_settings(PKG_NAME + ".sublime-settings")
         self.__subl_settings.clear_on_change(PKG_NAME)
-        self.__subl_settings.add_on_change(PKG_NAME,
-                                           self.on_settings_changed)
+        self.__subl_settings.add_on_change(PKG_NAME, self.on_settings_changed)
 
         # initialize default settings
         self.__default_settings = SettingsStorage(self.__subl_settings)
@@ -142,6 +140,8 @@ class SettingsManager:
             error_dialog_msg = """
 An error has occurred while parsing settings:
 {}
-""".format(error_msg)
+""".format(
+                error_msg
+            )
             SublBridge.show_error_dialog(error_dialog_msg)
             raise RuntimeError("Settings could not be loaded.")

@@ -23,6 +23,7 @@ class FlagsFile(FlagsSource):
             path. Needed to avoid reparsing the file multiple times.
         path_for_file (dict): A path to a database for every source file path.
     """
+
     _FILE_NAME = ".clang_complete"
 
     def __init__(self, include_prefixes):
@@ -46,8 +47,7 @@ class FlagsFile(FlagsSource):
             str[]: Return a list of flags in this .clang_complete file
         """
         # prepare search scope
-        search_scope = self._update_search_scope_if_needed(
-            search_scope, file_path)
+        search_scope = self._update_search_scope_if_needed(search_scope, file_path)
         # check if we have a hashed version
         log.debug("[clang_complete_file]:[get]: for file %s", file_path)
         cached_flags_path = self._get_cached_from(file_path)
@@ -65,7 +65,7 @@ class FlagsFile(FlagsSource):
         if parsed_before:
             log.debug("[clang_complete_file]: found cached .clang_complete")
             cached_flags_path = flags_file_path
-        flags_file_path_same = (flags_file_path == cached_flags_path)
+        flags_file_path_same = flags_file_path == cached_flags_path
         flags_file_same = File.is_unchanged(cached_flags_path)
         if flags_file_path_same and flags_file_same:
             log.debug("[clang_complete_file]:[unchanged]: load cached")
