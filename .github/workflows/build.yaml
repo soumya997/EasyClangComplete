@@ -12,21 +12,14 @@ jobs:
     container: sublimetext/unittesting
     steps:
       - uses: actions/checkout@v1
-      - run: sh -e /etc/init.d/xvfb start
-      - name: Cache LLVM and Clang
-        id: cache-llvm
-        uses: actions/cache@v2
-        with:
-          path: ${{ runner.temp }}/llvm
-          key: llvm-10.0
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v1
-        with:
-          version: "10.0"
-          directory: ${{ runner.temp }}/llvm
-          cached: ${{ steps.cache-llvm.outputs.cache-hit }}
+      - name: Install clang
+        run: |
+          apt update
+          apt install -y clang python-pip
       - name: Setup Bazel
         uses: abhinavsingh/setup-bazel@v3
+      - name: Setup virtual display
+        run: sh -e /etc/init.d/xvfb start
       - name: Install prerequisites
         run: |
           pip3 install --upgrade pip pycodestyle pep257
