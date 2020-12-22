@@ -8,25 +8,33 @@ on: [pull_request]
 
 jobs:
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    container: sublimetext/unittesting
     steps:
       - uses: actions/checkout@v1
+      - run: sh -e /etc/init.d/xvfb start
+      - name: Cache LLVM and Clang
+        id: cache-llvm
+        uses: actions/cache@v2
+        with:
+          path: ${{ runner.temp }}/llvm
+          key: llvm-10.0
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "10.0"
+          directory: ${{ runner.temp }}/llvm
+          cached: ${{ steps.cache-llvm.outputs.cache-hit }}
+      - name: Setup Bazel
+        uses: abhinavsingh/setup-bazel@v3
       - name: Install prerequisites
         run: |
           pip3 install --upgrade pip pycodestyle pep257
           pip3 install --upgrade coverage==4.5.4 codecov
           pip3 install --upgrade mkdocs mkdocs-material
-      - run: |
-          XVFB=/usr/bin/Xvfb
-          XVFBARGS="$DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset"
-          PIDFILE=/var/run/xvfb.pid
-          echo -n "Starting virtual X frame buffer: Xvfb"
-          sudo start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile --background --exec $XVFB -- $XVFBARGS
-          echo "."
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - name: Run tests
         run: |
-          which clang
           PATH="$HOME/.local/bin:$PATH"
           sh github.sh bootstrap
           sh github.sh install_package_control
@@ -40,12 +48,12 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Setup Bazel
+        uses: abhinavsingh/setup-bazel@v3
       - name: Install prerequisites
         run: |
           pip3 install --upgrade pip pycodestyle pep257
           pip3 install --upgrade coverage==4.5.4 codecov
-          curl -L -o bazelisk "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64";
-          chmod +x bazelisk && sudo mv bazelisk /usr/local/bin/bazel;
       - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - run: |
           which clang
@@ -53,10 +61,6 @@ jobs:
           sh github.sh bootstrap
           sh github.sh install_package_control
           sh github.sh run_tests --coverage
-      - run: |
-          codecov
-        env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
   windows:
     runs-on: windows-latest
@@ -65,16 +69,20 @@ jobs:
         shell: msys2 {0}
     steps:
       - uses: actions/checkout@v1
-      - uses: msys2/setup-msys2@v2
+      - name: Cache LLVM and Clang
+        id: cache-llvm
+        uses: actions/cache@v2
         with:
-          install: make cmake mingw-w64-x86_64-clang
+          path: ${{ runner.temp }}/llvm
+          key: llvm-10.0
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "10.0"
+          directory: ${{ runner.temp }}/llvm
+          cached: ${{ steps.cache-llvm.outputs.cache-hit }}
       - run: (new-object net.webclient).DownloadFile("https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.ps1","github.ps1")
-      - run: echo "C:\msys64\mingw64\bin" >> $GITHUB_PATH
       - run: |
           ./github.ps1 "bootstrap" -verbose
           ./github.ps1 "install_package_control" -verbose
           ./github.ps1 "run_tests" -coverage -verbose
-      - run: |
-          codecov
-        env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
