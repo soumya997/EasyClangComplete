@@ -20,12 +20,12 @@ jobs:
         uses: abhinavsingh/setup-bazel@v3
       - name: Setup virtual display
         run: sh -e /etc/init.d/xvfb start
+      - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
       - name: Install prerequisites
         run: |
-          pip install --upgrade pip pycodestyle pep257
-          pip install --upgrade coverage==4.5.4 codecov
-          pip install --upgrade mkdocs mkdocs-material
-      - run: curl -OL https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.sh
+          pip3 install --upgrade pip pycodestyle pep257
+          pip3 install --upgrade coverage==4.5.4 codecov
+          pip3 install --upgrade mkdocs mkdocs-material
       - name: Run tests
         run: |
           PATH="$HOME/.local/bin:$PATH"
@@ -61,6 +61,7 @@ jobs:
       - uses: actions/checkout@v1
       - run: (new-object net.webclient).DownloadFile("https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/github.ps1","github.ps1")
       - run: |
+          clang -h
           ./github.ps1 "bootstrap" -verbose
           ./github.ps1 "install_package_control" -verbose
           ./github.ps1 "run_tests" -coverage -verbose
