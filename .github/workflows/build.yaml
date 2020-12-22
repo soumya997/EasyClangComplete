@@ -15,7 +15,7 @@ jobs:
       - name: Install clang
         run: |
           apt update
-          apt install -y clang cmake
+          apt install -y clang cmake python3-pip
       - name: Setup Bazel
         uses: abhinavsingh/setup-bazel@v3
       - name: Setup virtual display
@@ -24,7 +24,7 @@ jobs:
       - name: Install prerequisites
         run: |
           pip3 install --upgrade pip pycodestyle pep257
-          pip3 install --upgrade coverage==4.5.4 codecov
+          pip3 install --upgrade coverage codecov
           pip3 install --upgrade mkdocs mkdocs-material
       - name: Run tests
         run: |
@@ -51,8 +51,8 @@ jobs:
       - run: |
           which clang
           export PATH="$HOME/.local/bin:$PATH"
-          # sh github.sh bootstrap
-          # sh github.sh install_package_control
+          sh github.sh bootstrap
+          sh github.sh install_package_control
           # sh github.sh run_tests --coverage
 
   windows:
